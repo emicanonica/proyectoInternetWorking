@@ -27,8 +27,8 @@ char buffer[tam];
 
 //data es un puntero al struct str_data.
 struct str_data *data;
-
 data = (struct str_data *) buffer;
+
 strcpy(data->cod , "3");
 strcpy(data->version , "123456789");
 int datalen = sizeof(buffer);
@@ -69,6 +69,46 @@ if(sendto(sock, data, datalen, 0, (struct sockaddr*)&groupSock, sizeof(groupSock
 {perror("error enviando el datagrama");}
 else
   printf("Envio de datagrama --- OK\n");
+
+
+struct sockaddr_in localSock;
+
+sock = socket(AF_INET, SOCK_DGRAM, 0);
+if(sock < 0)
+{
+  perror("error creando el socket");
+  exit(1);
+}
+else
+  printf("creacion de socket --- OK\n");
+
+memset((char *) &localSock, 0, sizeof(localSock));
+localSock.sin_family = AF_INET;
+localSock.sin_port = htons(4322);
+localSock.sin_addr.s_addr = INADDR_ANY;
+
+if(bind(sock, (struct sockaddr*)&localSock, sizeof(localSock)))
+{
+perror("Error realizanzo el Binding");
+close(sock);
+exit(1);
+}
+else
+printf("Binding socket --- OK\n");
+
+localSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+//prueba de recibir ack
+if(read(sock, buffer, datalen) < 0){
+  perror("error de lectura");
+  close(sock);
+  exit(1);
+}else{
+  //printf("Leyendo datagrama --- OK\n");
+  printf("------------------------\n");
+  printf("El codido es del datagrama es: \"%s\"\n", data->cod);
+  printf("La version es: \"%s\"\n", data->version);
+}
 
 return 0;
 }

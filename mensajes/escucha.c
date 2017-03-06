@@ -68,8 +68,11 @@ chdir("/");
 // Close stdin. stdout and stderr
 close(STDIN_FILENO);
 close(STDOUT_FILENO);
-close(STDERR_FILENO); 
+close(STDERR_FILENO);
 
+
+
+//inicio del programa
 struct str_data *data;
 data = (struct str_data *) buffer;
 
@@ -132,10 +135,22 @@ while (1){
     close(sock);
     exit(1);
   }else{
-    printf("Leyendo datagrama --- OK\n");
+    /*printf("Leyendo datagrama --- OK\n");
     printf("------------------------\n");
     printf("El codido es del datagrama es: \"%s\"\n", data->cod);
     printf("La version es: \"%s\"\n", data->version);
+    */
+
+    memset((char *) &sourceSock, 0, sizeof(sourceSock));
+    sourceSock.sin_family = AF_INET;
+    sourceSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sourceSock.sin_port = htons(4322);
+
+    if(sendto(sock, data, datalen, 0, (struct sockaddr*)&sourceSock, sizeof(sourceSock)) < 0)
+    {perror("error enviando el datagrama");}
+    else
+      printf("Envio de datagrama --- OK\n");
+
   }
 }
 
