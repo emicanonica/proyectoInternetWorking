@@ -18,6 +18,7 @@ struct str_data {																//struct que se enviara
 //  int Long[8];
   int cod[8];
   int version[32];
+  int ip[32];
 //  int checksum[16];
 };
 
@@ -31,6 +32,7 @@ data = (struct str_data *) buffer;
 
 strcpy(data->cod , "3");
 strcpy(data->version , "123456789");
+strcpy(data->ip , "192.168.2.114");
 int datalen = sizeof(buffer);
 
 
@@ -108,6 +110,7 @@ if(read(sock, buffer, datalen) < 0){
   printf("------------------------\n");
   printf("El codido es del datagrama es: \"%s\"\n", data->cod);
   printf("La version es: \"%s\"\n", data->version);
+  printf("el ip es: \"%s\"\n", data->ip);
 }
 
 return 0;

@@ -56,6 +56,45 @@ if(sendto(sock, data, datalen, 0, (struct sockaddr*)&destSock, sizeof(destSock))
 else
   printf("Envio de datagrama --- OK\n");
 
+//bloque ack
+  struct sockaddr_in localSock;
+
+    localSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock < 0)
+    {
+      perror("error creando el socket");
+      exit(1);
+    }
+    else
+      printf("creacion de socket --- OK\n");
+
+    memset((char *) &localSock, 0, sizeof(localSock));
+    localSock.sin_family = AF_INET;
+    localSock.sin_port = htons(4322);
+    localSock.sin_addr.s_addr = INADDR_ANY;
+
+    if(bind(sock, (struct sockaddr*)&localSock, sizeof(localSock)))
+    {
+    perror("Error realizanzo el Binding");
+    close(sock);
+    exit(1);
+    }
+    else
+    printf("Binding socket --- OK\n");
+
+    //prueba de recibir ack
+    if(read(sock, buffer, datalen) < 0){
+      perror("error de lectura");
+      close(sock);
+      exit(1);
+    }else{
+      //printf("Leyendo datagrama --- OK\n");
+      printf("------------------------\n");
+      printf("El codido es del datagrama es: \"%s\"\n", data->cod);
+      printf("La version es: \"%s\"\n", data->version);
+    }
 
 return 0;
 }

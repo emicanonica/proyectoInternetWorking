@@ -23,6 +23,7 @@ struct str_data {
   //int Long[8];
   int cod[8];
   int version[32];
+  int ip[32];
   //int checksum[16];
 };
 
@@ -116,9 +117,9 @@ printf("Binding socket --- OK\n");
 //Se une al grupo de multicast.
 
 group.imr_multiaddr.s_addr = inet_addr("226.1.1.1");
-group.imr_interface.s_addr = inet_addr("127.0.0.1");  //Esta es la dirección IP de la computadora que estoy usando, dentro de mi red local.
+group.imr_interface.s_addr = inet_addr("127.0.0.1");
 
-sourceSock.sin_addr.s_addr = inet_addr("127.0.0.1");  //Este funciona para recivir monocast.
+//sourceSock.sin_addr.s_addr = inet_addr("127.0.0.1");  //Este funciona para recivir monocast.
 
 if(setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0){
   perror("Adding multicast group error");
@@ -141,9 +142,10 @@ while (1){
     printf("La version es: \"%s\"\n", data->version);
     */
 
+    int ipAddr = data->ip;
     memset((char *) &sourceSock, 0, sizeof(sourceSock));
     sourceSock.sin_family = AF_INET;
-    sourceSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sourceSock.sin_addr.s_addr = inet_addr(ipAddr);
     sourceSock.sin_port = htons(4322);
 
     if(sendto(sock, data, datalen, 0, (struct sockaddr*)&sourceSock, sizeof(sourceSock)) < 0)
