@@ -14,11 +14,11 @@ int sock;
 
 struct str_data {																//struct que se enviara
 //	int id_mensage[16];
-//  int id_usuario[16];
+  char id_usuario[16];
 //  int Long[8];
-  int cod[8];
-  int version[32];
-  int ip[32];
+  uint8_t cod;
+  uint32_t version;
+  uint32_t ip;
 //  int checksum[16];
 };
 
@@ -30,9 +30,12 @@ char buffer[tam];
 struct str_data *data;
 data = (struct str_data *) buffer;
 
-strcpy(data->cod , "3");
-strcpy(data->version , "123456789");
-strcpy(data->ip , "192.168.2.114");
+
+data->cod = 3;
+data->version = 1122334455;  //dd.mm.aa.hh.min
+data->ip = inet_addr("192.168.0.17");
+
+
 int datalen = sizeof(buffer);
 
 
@@ -98,19 +101,22 @@ exit(1);
 else
 printf("Binding socket --- OK\n");
 
-localSock.sin_addr.s_addr = inet_addr("127.0.0.1");
+//localSock.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-//prueba de recibir ack
+//RECIBIR ACK
 if(read(sock, buffer, datalen) < 0){
   perror("error de lectura");
   close(sock);
   exit(1);
 }else{
-  //printf("Leyendo datagrama --- OK\n");
-  printf("------------------------\n");
-  printf("El codido es del datagrama es: \"%s\"\n", data->cod);
-  printf("La version es: \"%s\"\n", data->version);
-  printf("el ip es: \"%s\"\n", data->ip);
+  if (data->cod == 4) {
+    printf("El codido es del datagrama es: \"%i quiere decir que tengo una version vieja\"\n", data->cod);
+  }
+  else
+    printf("El codido es del datagrama es: \"%i quiere decir que mi version es la mas actual\"\n", data->cod);
+
+  printf("La version es: \"%i\"\n", data->version);
+  printf("el id es: \"%s\"\n", data->id_usuario);
 }
 
 return 0;
