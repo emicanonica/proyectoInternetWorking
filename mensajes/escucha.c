@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -8,8 +9,12 @@
 #include <errno.h>
 #include <string.h>
 #include <syslog.h>
+#include <stdbool.h>
 
-#include "resp.h"
+#include "mensaje.h"
+#include "mensajeMulticast.h"
+#include "gestTabla.h"
+
 
 #define tam sizeof(struct str_data)
 
@@ -19,15 +24,13 @@ struct sockaddr_in sourceSock;
 int sock;
 int datalen;
 
-int localversion = 3344556677; //obtener de tabla
-char * idUsuario = "guachin" //obtener de tabla
 
 struct str_data {
   //int id_mensage[16];
   char id_usuario[16];
   //int Long[8];
   uint8_t cod;
-  uint32_t version;
+  uint64_t version;
   uint32_t ip;
   //int checksum[16];
 };
@@ -91,11 +94,39 @@ void print_ip(int ip){
     syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
 }
 
+/*void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
+  /*agrega un usuario al final de la tabla*//*
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+  syslog (LOG_NOTICE, "entro a la funcion");
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+  FILE *pf;
+  pf = fopen("tabla.txt", "a+");
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+  syslog (LOG_NOTICE, "siguio");
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+  fprintf(pf, "%s %ld\n", id_usuario, version);
+
+  fclose(pf);
+
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+  syslog (LOG_NOTICE, "salio");
+  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+}
+*/
 
 
 int main(int argc, char *argv[]){
 
-  deamon();
+
+  unsigned long localVersion = 1122556611; //obtener de tabla
+  char * idUsuario = "guachin"; //obtener de tabla
+  uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
+  uint32_t IpDestino = inet_addr("192.168.0.17");
+
+  //deamon();
 
   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
   syslog (LOG_NOTICE, "arranco el log.");
@@ -156,7 +187,8 @@ int main(int argc, char *argv[]){
     printf("Adding multicast group...OK.\n");
 
 
-  while (1){
+  while (1) {
+
   //Leyendo desde el socket
     datalen = sizeof(buffer);
     if(read(sock, buffer, datalen) < 0){
@@ -169,50 +201,149 @@ int main(int argc, char *argv[]){
     }else{
 
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-      syslog (LOG_NOTICE, "el cod es:%i, la version es:%i, el id es:%s", data->cod, data->version, data->id_usuario );
+      syslog (LOG_NOTICE, "el cod es:%i, la version es:%ld, el id es:%s", data->cod, data->version, data->id_usuario );
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       print_ip(data->ip);
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-      switch (data->cod) {
-        case 1: //guardado del nuevo usuario y envio de la tabla y envio de mensaje con cod=2 con mi id_usuario
+/*
+      if (data->cod == 1) {
+        //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
           //GUARDAR USUARIO RESIBIDIO!!!
-          if (resp(2, data->version, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 1" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          //agregarUsuario(data->id_usuario, data->version, data->ip);
+
+          if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           }
-        break;
+          continue;
+
+      }else if (data->cod == 2) {
+        //resibo id_usuario y guardo en tabla
+          //GUARDAR USUARIO RESIBIDIO!!!
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 2" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          continue;
+      }else if (data->cod == 3) {
+        if (data->version < localVersion) {
+        if (mensaje(4, data->version, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        }
+
+        }else{
+          if (mensaje(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+            syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          }
+        }
+
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        syslog (LOG_NOTICE, "llego al case 3" );
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        continue;
+      }else if (data->cod == 4) {
+        //ACTUALIZAR LA TABLA
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        syslog (LOG_NOTICE, "llego al case 4" );
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        continue;
+      }else if (data->cod == 6) {
+        //solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
+        //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        syslog (LOG_NOTICE, "llego al case 6" );
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        continue;
+      }else if (data->cod == 7) {
+        //recibir y copiar los archivos a mi directorio
+        //COPIAR ARCHIVOS A MI REPOSITORIO
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        syslog (LOG_NOTICE, "llego al case 7" );
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        continue;
+      }else {
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        syslog (LOG_NOTICE, "error: codigo no correcto" );
+        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+        continue;
+      }
+*/
+      switch (data->cod) {
+        case 1: //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
+          //GUARDAR USUARIO RESIBIDIO!!!
+
+          agregarUsuario(data->id_usuario, data->version, data->ip);
+
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 1" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          //agregarUsuario(data->id_usuario, data->version, data->ip);
+          /*
+          if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+            syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          }*/
+
         case 2://resibo id_usuario y guardo en tabla
           //GUARDAR USUARIO RESIBIDIO!!!
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 2" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          break;
         case 3: //respuesta positiva o negativa a consulta de version version
-          if (data->version < localversion) {
+          if (data->version < localVersion) {
 
-            //FALTA DETERMINAR A QUIEN PEDIR LOS ARCHIVOS Y ACTUALIZAR LA TABLA
-
-          if (resp(4, data->version, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
+          if (mensaje(4, localVersion, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           }
 
           }else{
-            if (resp(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
+            if (mensaje(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             }
           }
-        break;
+          break;
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 3" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+        case 4:
+          //ACTUALIZAR LA TABLA
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 4" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          break;
         case 6://solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
-              //ENVIAR MENSAJE "version" ACTUALIZAR TABLA, Y ENVIAR AL QUE TENGA LA VERSION MAS ACTUAL EL MENSAJE CON COD=6
+          //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 6" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          break;
         case 7://recibir y copiar los archivos a mi directorio
-              //COPIAR ARCHIVOS A MI REPOSITORIO
+          //COPIAR ARCHIVOS A MI REPOSITORIO
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 7" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          break;
+      }
     }
   }
 
-
-  return 0;
-  }
+    return 0;
 }
