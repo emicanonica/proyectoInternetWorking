@@ -177,7 +177,6 @@ int main(int argc, char *argv[]){
 
   group.imr_multiaddr.s_addr = inet_addr("226.1.1.1");
 
-//  group.imr_interface.s_addr = inet_addr("127.0.0.1");
   if(setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0){
     perror("Adding multicast group error");
     close(sock);
