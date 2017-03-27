@@ -27,7 +27,7 @@ int datalen;
 
 struct str_data {
   //int id_mensage[16];
-  char id_usuario[16];
+  char  id_usuario[16];
   //int Long[8];
   uint8_t cod;
   uint64_t version;
@@ -94,34 +94,10 @@ void print_ip(int ip){
     syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
 }
 
-/*void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
-  /*agrega un usuario al final de la tabla*//*
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-  syslog (LOG_NOTICE, "entro a la funcion");
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-  FILE *pf;
-  pf = fopen("tabla.txt", "a+");
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-  syslog (LOG_NOTICE, "siguio");
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-  fprintf(pf, "%s %ld\n", id_usuario, version);
-
-  fclose(pf);
-
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-  syslog (LOG_NOTICE, "salio");
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-}
-*/
-
 
 int main(int argc, char *argv[]){
 
-
-  unsigned long localVersion = 1122556611; //obtener de tabla
+  unsigned long localVersion = 112255661166; //obtener de tabla
   char * idUsuario = "guachin"; //obtener de tabla
   uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
   uint32_t IpDestino = inet_addr("192.168.0.17");
@@ -147,7 +123,7 @@ int main(int argc, char *argv[]){
     printf("creacion de socket --- OK\n");
 
   /* Enable SO_REUSEADDR to allow multiple instances of this application to receive copies of the multicast datagrams. */
-  {
+
   int reuse = 1;
   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0)
   {
@@ -157,7 +133,7 @@ int main(int argc, char *argv[]){
   }
   else
     printf("Setting SO_REUSEADDR...OK.\n");
-  }
+
 
   memset((char *) &localSock, 0, sizeof(localSock));
   localSock.sin_family = AF_INET;
@@ -187,7 +163,7 @@ int main(int argc, char *argv[]){
 
   while (1) {
 
-  //Leyendo desde el socket
+    //Leyendo desde el socket
     datalen = sizeof(buffer);
     if(read(sock, buffer, datalen) < 0){
       perror("error de lectura");
@@ -203,95 +179,30 @@ int main(int argc, char *argv[]){
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       print_ip(data->ip);
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-/*
-      if (data->cod == 1) {
-        //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
-          //GUARDAR USUARIO RESIBIDIO!!!
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 1" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-          //agregarUsuario(data->id_usuario, data->version, data->ip);
 
-          if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
-            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-            syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
-            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          }
-          continue;
 
-      }else if (data->cod == 2) {
-        //resibo id_usuario y guardo en tabla
-          //GUARDAR USUARIO RESIBIDIO!!!
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 2" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          continue;
-      }else if (data->cod == 3) {
-        if (data->version < localVersion) {
-        if (mensaje(4, data->version, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        }
-
-        }else{
-          if (mensaje(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
-            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-            syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
-            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          }
-        }
-
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        syslog (LOG_NOTICE, "llego al case 3" );
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        continue;
-      }else if (data->cod == 4) {
-        //ACTUALIZAR LA TABLA
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        syslog (LOG_NOTICE, "llego al case 4" );
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        continue;
-      }else if (data->cod == 6) {
-        //solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
-        //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        syslog (LOG_NOTICE, "llego al case 6" );
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        continue;
-      }else if (data->cod == 7) {
-        //recibir y copiar los archivos a mi directorio
-        //COPIAR ARCHIVOS A MI REPOSITORIO
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        syslog (LOG_NOTICE, "llego al case 7" );
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        continue;
-      }else {
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        syslog (LOG_NOTICE, "error: codigo no correcto" );
-        syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-        continue;
-      }
-*/
       switch (data->cod) {
         case 1: //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
           //GUARDAR USUARIO RESIBIDIO!!!
 
-          agregarUsuario(data->id_usuario, data->version, data->ip);
-
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 1" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-          //agregarUsuario(data->id_usuario, data->version, data->ip);
-          /*
+          agregarUsuario(data->id_usuario, data->version, data->ip);
+
           if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          }*/
+          }
 
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "salio de COD=1" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          break;
         case 2://resibo id_usuario y guardo en tabla
           //GUARDAR USUARIO RESIBIDIO!!!
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -314,12 +225,14 @@ int main(int argc, char *argv[]){
               syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             }
+
           }
-          break;
+
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 3" );
+          syslog (LOG_NOTICE, "salio del case 3" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+          break;
         case 4:
           //ACTUALIZAR LA TABLA
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -339,9 +252,9 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           break;
-      }
-    }
-  }
+      } //fin swtich
+    } //fin else
+  } //fin while
 
     return 0;
 }

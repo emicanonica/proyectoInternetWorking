@@ -10,7 +10,7 @@
 
 #include "mensaje.h"
 #include "mensajeMulticast.h"
-
+#include "gestTabla.h"
 
 int main(int argc, char const *argv[]) {
 
@@ -29,12 +29,12 @@ int main(int argc, char const *argv[]) {
       perror("Error de envio de mensaje multicast 'version'");
     }
   } else if (strcmp(argv[1], "solicitud") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
-    if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
+  /*  if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
-    }
+    }*/
     //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD
     if (mensaje(6, localVersion, IpDestino, idUsuario) < 0) {
-      perror("Error de envio de mensaje multicast 'version'");
+      perror("Error de envio de mensaje multicast 'solicitud'");
     }
   }else {
     printf("%s no es un argumento correcto\n", argv[1]);

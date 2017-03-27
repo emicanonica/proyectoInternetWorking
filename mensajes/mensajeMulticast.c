@@ -10,7 +10,7 @@
 
 #include "mensajeMulticast.h"
 
-struct in_addr localInterface;
+//struct in_addr localInterface;
 struct sockaddr_in groupSock;
 int sock;
 
@@ -18,7 +18,7 @@ int sock;
 
 struct str_data {																//struct que se enviara
 //	int id_mensage[16];
-  char id_usuario[16];
+  char  id_usuario[16];
 //  int Long[8];
   uint8_t cod;
   uint64_t version;
