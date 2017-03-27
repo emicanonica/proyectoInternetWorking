@@ -26,10 +26,6 @@ struct str_data {																//struct que se enviara
 //  int checksum[16];
 };
 
-
-
-
-
 int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuario){
   char buffer[tam];
 
@@ -58,13 +54,16 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
 
   memset((char *) &groupSock, 0, sizeof(groupSock));
   groupSock.sin_family = AF_INET;
+  //groupSock.sin_addr.s_addr = htonl(INADDR_ANY);
   groupSock.sin_addr.s_addr = inet_addr("226.1.1.1");
   groupSock.sin_port = htons(4321);
 
 
   /* Set local interface for outbound multicast datagrams. The IP address specified must be associated with a local, multicast capable interface. */
 
+/*
   localInterface.s_addr = inet_addr("127.0.0.1");
+
   if(setsockopt(sock, IPPROTO_IP, IP_MULTICAST_IF, (char *)&localInterface, sizeof(localInterface)) < 0)
   {
     perror("error al setear la interfaz local");
@@ -72,7 +71,7 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
   }
   else
     printf("Interfaz local seteada --- OK\n");
-
+*/
   /* Send a message to the multicast group specified by the groupSock sockaddr structure.*/
 
   if(sendto(sock, data, datalen, 0, (struct sockaddr*)&groupSock, sizeof(groupSock)) < 0)
