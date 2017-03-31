@@ -107,7 +107,7 @@ int main(int argc, char *argv[]){
   unsigned long localVersion = 112255661166; //obtener de tabla
   char * idUsuario = "guachin"; //obtener de tabla
   uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
-  uint32_t IpDestino = inet_addr("192.168.0.17");
+  uint32_t IpDestino = inet_addr("192.168.0.22");
 
   //deamon();
 
@@ -192,22 +192,25 @@ int main(int argc, char *argv[]){
       switch (data->cod) {
         case 1: //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
           //GUARDAR USUARIO RESIBIDIO!!!
+          if (data->ip != localIp) {
 
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 1" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-          agregarUsuario(data->id_usuario, data->version, data->ip);
-
-          if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-            syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
+            syslog (LOG_NOTICE, "llego al case 1" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+            agregarUsuario(data->id_usuario, data->version, data->ip);
+
+            if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
+              syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+              syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
+              syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+            }
+
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+            syslog (LOG_NOTICE, "salio de COD=1" );
+            syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
           }
-
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "salio de COD=1" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           break;
         case 2://resibo id_usuario y guardo en tabla
