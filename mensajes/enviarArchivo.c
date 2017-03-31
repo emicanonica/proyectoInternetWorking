@@ -9,11 +9,13 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-int main(void)
+#include "enviarArchivo.h"
+
+int enviarArchivo(uint32_t ip , char * nombreArchivo)
 {
     int sockfd = 0;
     int bytesReceived = 0;
-    char recvBuff[1024];
+    char recvBuff[1024]; //ver si se puede poner ilimitado
     memset(recvBuff, '0', sizeof(recvBuff));
     struct sockaddr_in serv_addr;
 
@@ -25,7 +27,7 @@ int main(void)
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(1235);
-    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    serv_addr.sin_addr.s_addr = ip; //inet_addr("127.0.0.1"); //ip al que lo envio
 
     if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0)
     {
@@ -34,7 +36,7 @@ int main(void)
     }
 
     FILE *fp;
-    fp = fopen("sample_file.txt", "ab");
+    fp = fopen(nombreArchivo, "ab"); //cambiar por el nombre del archivo pasado por parametro
     if(NULL == fp)
     {
         printf("Error opening file");
@@ -47,9 +49,9 @@ int main(void)
 
         fwrite(recvBuff, 1,bytesReceived,fp);
         //printf("%s \n", recvBuff);
-        FILE *pf;
-        pf = fopen("test2.txt", "wb");
-        fprintf(pf, "%s\n",recvBuff);
+        //FILE *pf;
+        //pf = fopen("test2.txt", "wb");
+        //fprintf(pf, "%s\n",recvBuff);
     }
 
     if(bytesReceived < 0)

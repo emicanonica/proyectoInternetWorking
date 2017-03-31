@@ -10,10 +10,13 @@
 #include <string.h>
 #include <syslog.h>
 #include <stdbool.h>
+#include <dirent.h>
 
 #include "mensaje.h"
 #include "mensajeMulticast.h"
 #include "gestTabla.h"
+#include "recvArchivo.h"
+#include "enviarArchivo.h"
 
 
 #define tam sizeof(struct str_data)
@@ -24,6 +27,10 @@ struct sockaddr_in sourceSock;
 int sock;
 int datalen;
 
+//prueba de envio de archivos
+DIR *dir;
+struct dirent *ent;
+char * direccion = "/home/emi/git/proyectoInternetWorking/mensajes/";
 
 struct str_data {
   //int id_mensage[16];
@@ -242,12 +249,41 @@ int main(int argc, char *argv[]){
           break;
         case 6://solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
           //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
+
+          if ((dir = opendir (direccion)) != NULL) {
+              while ((ent = readdir (dir)) != NULL) {
+                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0){
+                  //no hago nada
+                }else{
+
+                  printf ("%s\n", ent->d_name);
+                  //pasar como parametro el nombre del archivo
+                  //enviarArchivo(cod, ent->d_name, data->ip, tamArchivo);
+
+                  if (mensaje(7, localVersion, data->ip, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
+                    syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+                    syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+                    syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+                  }
+
+                  recvArchivo(ent->d_name);
+                }
+
+              }
+              closedir (dir);
+
+          }else {
+            perror ("");
+          }
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 6" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           break;
         case 7://recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO
+
+          enviarArchivo(data->ip, data->id_usuario);
+
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");

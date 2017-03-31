@@ -8,7 +8,9 @@
 #include <string.h>
 #include <sys/types.h>
 
-int main(void)
+#include "recvArchivo.h"
+
+int recvArchivo(char * nombreArchivo)
 {
     int listenfd = 0;
     int connfd = 0;
@@ -36,19 +38,19 @@ int main(void)
     }
 
 
-    while(1)
+    //while(1) //poner condicion de salida
     {
 
         connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL);
 
-        FILE *fp = fopen("test.txt","rb");
+        FILE *fp = fopen(nombreArchivo,"rb");
         if(fp==NULL)
         {
             printf("File opern error");
             return 1;
         }
 
-        while(1)
+        while(!feof(fp))
         {
             unsigned char buff[1024]={0};
             int nread = fread(buff,1,1024,fp);
