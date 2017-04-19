@@ -5,6 +5,8 @@
 #include <string.h>
 #include <syslog.h>
 
+#include <dirent.h>
+
 #include "gestTabla.h"
 
 

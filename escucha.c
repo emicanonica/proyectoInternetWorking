@@ -12,11 +12,13 @@
 #include <stdbool.h>
 #include <dirent.h>
 
-#include "mensaje.h"
-#include "mensajeMulticast.h"
+#include <ifaddrs.h>
+
+#include "mensajes/mensaje.h"
+#include "mensajes/mensajeMulticast.h"
 #include "gestTabla.h"
-#include "recvArchivo.h"
-#include "enviarArchivo.h"
+#include "mensajes/recvArchivo.h"
+#include "mensajes/enviarArchivo.h"
 
 
 #define tam sizeof(struct str_data)
@@ -101,8 +103,27 @@ void print_ip(int ip){
     syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
 }
 
+int getipaddr(){
+    struct ifaddrs *ifap, *ifa;
+    struct sockaddr_in *sa;
+    char *addr;
+
+    getifaddrs (&ifap);
+    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr->sa_family==AF_INET) {
+            sa = (struct sockaddr_in *) ifa->ifa_addr;
+            addr = inet_ntoa(sa->sin_addr);
+            printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
+        }
+    }
+
+    freeifaddrs(ifap);
+    return 0;
+}
 
 int main(int argc, char *argv[]){
+
+  getipaddr();
 
   unsigned long localVersion = 112255661166; //obtener de tabla
   char * idUsuario = "guachin"; //obtener de tabla
