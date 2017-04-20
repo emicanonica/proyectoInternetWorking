@@ -12,53 +12,21 @@
 #include "mensajes/mensajeMulticast.h"
 #include "gestTabla.h"
 
-char * setConf(int i){ //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
-  FILE *pf;
-  char *line = malloc (1000);
-  int len1,len2,c,cont;
-  cont = 0;
-  pf = fopen(".conf", "r");
-  fseek(pf, 0, SEEK_SET);
-  for (;;) {
-    c = fgetc(pf);
-    if (c == EOF)
-      break;
-
-    if (c == ':'){
-      cont++;
-      if (i==cont)
-        len1 = ftell(pf);
-    }
-    if (i == cont) {
-      if (c == EOF || c == '\n') {
-        len2 = ftell(pf);
-        break;
-      }
-    }
-
-  }
-  fseek(pf, len1, SEEK_SET);
-  fread(line, (len2-len1-1),1,pf);
-
-  return line;
-}
 
 int main(int argc, char const *argv[]) {
 
-  //FILE *pf;
-
   unsigned long localVersion = 114455661122; //obtener de tabla
-  char * idUsuario = setConf(1);
+  char * idUsuario = getConf(1);
   //printf("%s\n", idUsuario);
-  char * direccion = setConf(2);
+  char * direccion = getConf(2);
   //printf("%s\n", direccion);
-  uint32_t IpDestino = inet_addr("192.168.0.22"); //obtener de tabla
-  uint32_t localIp = inet_addr("192.168.0.17");   //se utiliza en multicast solamente
+  uint32_t IpDestino = inet_addr("192.168.0.18"); //obtener de tabla
+  uint32_t localIp = inet_addr(getConf(4));   //se utiliza en multicast solamente
   //uint32_t MasActualIp = inet_addr("192.168.0.17"); //obtener de tabla !IMPORTANTE!
 
   //fclose(pf);
 
-  char str1[20],str2[20];
+  char str1[50],str2[500];
 
   if (strcmp(argv[1], "hola") == 0) {
     if (mensajeMulticast(1, localVersion, localIp, idUsuario) < 0) {
@@ -68,15 +36,26 @@ int main(int argc, char const *argv[]) {
     if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
+  } else if (strcmp(argv[1], "setId") == 0) {
+    printf("Ingrese su nombre de usuario: ");
+    scanf("%s",str1);
+    setConf(1,str1);
+  } else if (strcmp(argv[1], "setDir") == 0) {
+    printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
+    scanf("%s",str2);
+    setConf(2,str2);
   } else if (strcmp(argv[1], "conf") == 0) {
     FILE *pf;
     pf = fopen(".conf", "w+");
+    fprintf(pf, "id de usuario:\nUbicación del repositorio:\nVersion:\nIp:\n");
+    fclose(pf);
     printf("Ingrese su nombre de usuario: ");
     scanf("%s",str1);
+    setConf(1,str1);
     printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
     scanf("%s",str2);
-    fprintf(pf, "id de usuario:%s\nUbicación del repositorio:%s\n", str1, str2);
-    fclose(pf);
+    setConf(2,str2);
+
   }else if (strcmp(argv[1], "solicitud") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
   /*  if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
@@ -85,7 +64,7 @@ int main(int argc, char const *argv[]) {
     if (mensaje(6, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'solicitud'");
     }
-  }else if (strcmp(argv[1], "") == 0){
+  }else if (strcmp(argv[1], "") == 0){ //ESTO NO FUNCIONA
     printf("debe ingresarse un argumento\n");
     printf("pruebe con:\n hola <-- Unirse al grupo multicast y al proyecto\n version <-- consultar version más reciente\n solicitud<-- solicitar actualizacion del repositorio local\n conf <-- cargar nombre de usuario y repositorio a utilizar\n");
     printf("\n Si es la primera vez que utiliza este programa corra en consola el comando './cliente conf' para realizar la configuración inicial\n");

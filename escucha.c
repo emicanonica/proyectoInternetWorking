@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <dirent.h>
 
+#include <netdb.h>
 #include <ifaddrs.h>
 
 #include "mensajes/mensaje.h"
@@ -101,34 +102,76 @@ void print_ip(int ip){
     bytes[3] = ip & 0xFF;
 
     syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
+    printf("el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
 }
 
-int getipaddr(){
-    struct ifaddrs *ifap, *ifa;
-    struct sockaddr_in *sa;
-    char *addr;
+int getIpAddr(){
+  FILE *f;
+  char line[100] , *p , *c;
 
-    getifaddrs (&ifap);
-    for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr->sa_family==AF_INET) {
-            sa = (struct sockaddr_in *) ifa->ifa_addr;
-            addr = inet_ntoa(sa->sin_addr);
-            printf("Interface: %s\tAddress: %s\n", ifa->ifa_name, addr);
-        }
+  f = fopen("/proc/net/route" , "r");
+
+  while(fgets(line , 100 , f)){
+      p = strtok(line , " \t");
+      c = strtok(NULL , " \t");
+
+      if(p!=NULL && c!=NULL)
+      {
+          if(strcmp(c , "00000000") == 0)
+          {
+              //printf("Default interface is : %s \n" , p);
+              break;
+          }
+      }
+  }
+    //which family do we require , AF_INET or AF_INET6
+    int fm = AF_INET;
+    struct ifaddrs *ifaddr, *ifa;
+    int family , s;
+    char host[NI_MAXHOST];
+
+    if (getifaddrs(&ifaddr) == -1)
+    {
+        perror("getifaddrs");
+        exit(EXIT_FAILURE);
     }
 
-    freeifaddrs(ifap);
+    //Walk through linked list, maintaining head pointer so we can free list later
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next){
+        if (ifa->ifa_addr == NULL){
+            continue;
+        }
+
+        family = ifa->ifa_addr->sa_family;
+
+        if(strcmp( ifa->ifa_name , p) == 0){
+            if (family == fm){
+                s = getnameinfo( ifa->ifa_addr, (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6) , host , NI_MAXHOST , NULL , 0 , NI_NUMERICHOST);
+
+                if (s != 0){
+                    printf("getnameinfo() failed: %s\n", gai_strerror(s));
+                    exit(EXIT_FAILURE);
+                }
+
+                //printf("address: %s", host);
+                setConf(4,host);
+            }
+            //printf("\n");
+        }
+    }
+    freeifaddrs(ifaddr);
     return 0;
 }
 
 int main(int argc, char *argv[]){
 
-  getipaddr();
+  getIpAddr();
 
   unsigned long localVersion = 112255661166; //obtener de tabla
   char * idUsuario = "guachin"; //obtener de tabla
-  uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
-  uint32_t IpDestino = inet_addr("192.168.0.22");
+  //uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
+  uint32_t localIp = inet_addr(getConf(4)); //obtener de tabla
+  uint32_t IpDestino = inet_addr("192.168.0.18");
 
   //deamon();
 
