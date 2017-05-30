@@ -15,7 +15,10 @@
 
 int main(int argc, char const *argv[]) {
 
-  unsigned long localVersion = 114455661122; //obtener de tabla
+
+
+  char *ptr;
+  unsigned long localVersion = strtol(getConf(3),&ptr,10); //obtener de tabla
   char * idUsuario = getConf(1);
   //printf("%s\n", idUsuario);
   char * direccion = getConf(2);
@@ -24,27 +27,25 @@ int main(int argc, char const *argv[]) {
   uint32_t localIp = inet_addr(getConf(4));   //se utiliza en multicast solamente
   //uint32_t MasActualIp = inet_addr("192.168.0.17"); //obtener de tabla !IMPORTANTE!
 
-  //fclose(pf);
-
   char str1[50],str2[500];
 
-  if (strcmp(argv[1], "hola") == 0) {
+  if (strcmp(argv[1], "hola") == 0) {   //envia un mensaje con COD=1 por multicast para cargar las tablas
     if (mensajeMulticast(1, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'hola'");
     }
-  } else if (strcmp(argv[1], "version") == 0) {
+  } else if (strcmp(argv[1], "version") == 0) { //envia un mensaje con COD=3 por multicast para verificar las versiones
     if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
-  } else if (strcmp(argv[1], "setId") == 0) {
+  } else if (strcmp(argv[1], "setId") == 0) { //cambiar nombre de usuarion IMPORTANTE:NO SE PUEDEN INGRESAR ESPACIOS (ARREGLAR)
     printf("Ingrese su nombre de usuario: ");
     scanf("%s",str1);
     setConf(1,str1);
-  } else if (strcmp(argv[1], "setDir") == 0) {
+  } else if (strcmp(argv[1], "setDir") == 0) { //cambiar repositorio a ser observado
     printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
     scanf("%s",str2);
     setConf(2,str2);
-  } else if (strcmp(argv[1], "conf") == 0) {
+  } else if (strcmp(argv[1], "conf") == 0) { //reiniciar la configuracion, pregunta nuevo id y repositorio y reinicia el ip y la version
     FILE *pf;
     pf = fopen(".conf", "w+");
     fprintf(pf, "id de usuario:\nUbicación del repositorio:\nVersion:\nIp:\n");
@@ -53,6 +54,8 @@ int main(int argc, char const *argv[]) {
     scanf("%s",str1);
     setConf(1,str1);
     printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
+    //comprobar que la carpeta sea valida, en caso de ser invalida, pedir otra vez
+    //verificar que la direccion termine con "/" sino agregarla
     scanf("%s",str2);
     setConf(2,str2);
 

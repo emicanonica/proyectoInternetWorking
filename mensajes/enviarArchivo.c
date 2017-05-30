@@ -10,9 +10,12 @@
 #include <arpa/inet.h>
 
 #include "enviarArchivo.h"
+#include "../gestTabla.h"
 
 int enviarArchivo(uint32_t ip , char * nombreArchivo)
 {
+    char * direccion = getConf(2);
+
     int sockfd = 0;
     int bytesReceived = 0;
     char recvBuff[1024]; //ver si se puede poner ilimitado
@@ -36,7 +39,7 @@ int enviarArchivo(uint32_t ip , char * nombreArchivo)
     }
 
     FILE *fp;
-    fp = fopen(nombreArchivo, "ab"); //cambiar por el nombre del archivo pasado por parametro
+    fp = fopen( nombreArchivo, "ab");
     if(NULL == fp)
     {
         printf("Error opening file");

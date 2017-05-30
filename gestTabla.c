@@ -23,7 +23,7 @@ void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
 
 char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
   FILE *pf;
-  char *line = malloc (1000);
+  char *line = malloc (500);
   int len1,len2,c,cont;
   cont = 0;
   pf = fopen(".conf", "r");

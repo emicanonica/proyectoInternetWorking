@@ -33,7 +33,7 @@ int datalen;
 //prueba de envio de archivos
 DIR *dir;
 struct dirent *ent;
-char * direccion = "/home/emi/git/proyectoInternetWorking/mensajes/";
+
 
 struct str_data {
   //int id_mensage[16];
@@ -165,13 +165,16 @@ int getIpAddr(){
 
 int main(int argc, char *argv[]){
 
+  char *direccion = getConf(2);//"/home/emi/git/proyectoInternetWorking/mensajes/";
+
   getIpAddr();
 
-  unsigned long localVersion = 112255661166; //obtener de tabla
-  char * idUsuario = "guachin"; //obtener de tabla
+  char *ptr;
+  unsigned long localVersion = strtol(getConf(3),&ptr,10); //obtener de tabla
+  char * idUsuario = getConf(1); //obtener de tabla
   //uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
   uint32_t localIp = inet_addr(getConf(4)); //obtener de tabla
-  uint32_t IpDestino = inet_addr("192.168.0.18");
+  uint32_t IpDestino = inet_addr("192.168.0.18"); //provisorio
 
   //deamon();
 
@@ -234,6 +237,7 @@ int main(int argc, char *argv[]){
 
   while (1) {
 
+    char ch;
     //Leyendo desde el socket
     datalen = sizeof(buffer);
     if(read(sock, buffer, datalen) < 0){
@@ -255,7 +259,7 @@ int main(int argc, char *argv[]){
 
       switch (data->cod) {
         case 1: //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
-          //GUARDAR USUARIO RESIBIDIO!!!
+          //VRIFICAR QUE NO EXISTA Y GUARDAR USUARIO RESIBIDIO (SI EXISTE PERO TIENE UNA VERSION MAS ACTUAL ACTUALIZAR VERSION)!!!
           if (data->ip != localIp) {
 
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -275,28 +279,38 @@ int main(int argc, char *argv[]){
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           }
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "sale del case 1" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
           break;
+          memset(buffer, '\0', 1000);
         case 2://resibo id_usuario y guardo en tabla
-          //GUARDAR USUARIO RESIBIDIO!!!
+          //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
+          agregarUsuario(data->id_usuario, data->version, data->ip);
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
           break;
         case 3: //respuesta positiva o negativa a consulta de version version
           if (data->version < localVersion) {
 
           if (mensaje(4, localVersion, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-            syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+            syslog (LOG_NOTICE, "error en la funcion resp COD=3 afirmativa" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           }
 
           }else{
             if (mensaje(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-              syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+              syslog (LOG_NOTICE, "error en la funcion resp COD=3 negativa" );
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             }
 
@@ -306,6 +320,9 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "salio del case 3" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
           break;
         case 4:
           //ACTUALIZAR LA TABLA
@@ -313,6 +330,19 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "llego al case 4" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
+          break;
+        case 5:
+          //IMPRIMIR MENSAJE DE ERROR DE ENVIO DE ARCHIVOS(POR AHORA SOLO FALLA EN ESO);
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 5" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
           break;
         case 6://solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
           //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
@@ -326,10 +356,10 @@ int main(int argc, char *argv[]){
                   printf ("%s\n", ent->d_name);
                   //pasar como parametro el nombre del archivo
                   //enviarArchivo(cod, ent->d_name, data->ip, tamArchivo);
-
+                  //CREAR FUNCION QUE ENVIE ARRAY DE NOMBRES Y NO DE A UNO
                   if (mensaje(7, localVersion, data->ip, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-                    syslog (LOG_NOTICE, "error en la funcion resp COD=3" );
+                    syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   }
 
@@ -345,15 +375,23 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 6" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
           break;
         case 7://recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO
 
-          enviarArchivo(data->ip, data->id_usuario);
+          enviarArchivo(data->ip, data->id_usuario); //el nombre del archivo va guardado en id_usuario
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+          //VACIA BUFFER
+          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          memset(buffer, '\0', 1000);
           break;
       } //fin swtich
     } //fin else

@@ -9,9 +9,14 @@
 #include <sys/types.h>
 
 #include "recvArchivo.h"
+#include "../gestTabla.h"
 
 int recvArchivo(char * nombreArchivo)
 {
+    char * direccion = malloc(1000);
+    direccion = strcat(getConf(2), nombreArchivo);
+    printf("%s\n", direccion);
+
     int listenfd = 0;
     int connfd = 0;
     struct sockaddr_in serv_addr;
@@ -38,15 +43,15 @@ int recvArchivo(char * nombreArchivo)
     }
 
 
-    //while(1) //poner condicion de salida
-    {
+    //while(1){ //poner condicion de salida
+
 
         connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL);
 
-        FILE *fp = fopen(nombreArchivo,"rb");
+        FILE *fp = fopen( direccion, "rb");
         if(fp==NULL)
         {
-            printf("File opern error");
+            printf("File open error ");
             return 1;
         }
 
@@ -54,11 +59,11 @@ int recvArchivo(char * nombreArchivo)
         {
             unsigned char buff[1024]={0};
             int nread = fread(buff,1,1024,fp);
-            printf("Bytes read %d \n", nread);
+            //printf("Bytes read %d \n", nread);
 
             if(nread > 0)
             {
-                printf("Sending \n");
+                //printf("Sending \n");
                 write(connfd, buff, nread);
             }
 
@@ -75,7 +80,7 @@ int recvArchivo(char * nombreArchivo)
 
         close(connfd);
         sleep(1);
-    }
+    //}
 
 
     return 0;
