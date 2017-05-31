@@ -249,18 +249,21 @@ int main(int argc, char *argv[]){
       exit(1);
     }else{
 
+      //para hacer que no el mensaje de si mismo
+      if (strcmp(data->id_usuario , idUsuario)){
+        continue;
+      }
+
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       syslog (LOG_NOTICE, "el cod es:%i, la version es:%ld, el id es:%s", data->cod, data->version, data->id_usuario );
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       print_ip(data->ip);
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-
-
       switch (data->cod) {
         case 1: //guardado del nuevo usuario y envio de mensaje con cod=2 con mi id_usuario, mi ip y mi version
           //VRIFICAR QUE NO EXISTA Y GUARDAR USUARIO RESIBIDIO (SI EXISTE PERO TIENE UNA VERSION MAS ACTUAL ACTUALIZAR VERSION)!!!
-          if (data->ip != localIp) {
+          //if (data->ip != localIp) {
 
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             syslog (LOG_NOTICE, "llego al case 1" );
@@ -268,28 +271,24 @@ int main(int argc, char *argv[]){
 
             agregarUsuario(data->id_usuario, data->version, data->ip);
 
-            if (mensaje(2, localVersion, data->ip, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
+            if (mensaje(2, localVersion, data->ip, localIp, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en la funcion resp COD=2" );
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             }
 
+          //}
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-            syslog (LOG_NOTICE, "salio de COD=1" );
+            syslog (LOG_NOTICE, "sale del case 1" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-          }
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "sale del case 1" );
-          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-
-          //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
-          break;
-          memset(buffer, '\0', 1000);
+            //VACIA BUFFER
+            while ((ch = getchar()) != '\n' && ch != EOF) { }
+            break;
+            memset(buffer, '\0', 1000);
         case 2://resibo id_usuario y guardo en tabla
           //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
-          agregarUsuario(data->id_usuario, data->version, data->ip);
+          //agregarUsuario(data->id_usuario, data->version, data->ip);
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -301,14 +300,14 @@ int main(int argc, char *argv[]){
         case 3: //respuesta positiva o negativa a consulta de version version
           if (data->version < localVersion) {
 
-          if (mensaje(4, localVersion, data->ip, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
+          if (mensaje(4, localVersion, data->ip, localIp, idUsuario) < 0) { //4 es el cod para la respuesta afirmativa
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
             syslog (LOG_NOTICE, "error en la funcion resp COD=3 afirmativa" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           }
 
           }else{
-            if (mensaje(5, data->version, data->ip, idUsuario) < 0) { //5 es el cod para la respuesta negativa
+            if (mensaje(5, data->version, data->ip, localIp, idUsuario) < 0) { //5 es el cod para la respuesta negativa
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en la funcion resp COD=3 negativa" );
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -357,7 +356,7 @@ int main(int argc, char *argv[]){
                   //pasar como parametro el nombre del archivo
                   //enviarArchivo(cod, ent->d_name, data->ip, tamArchivo);
                   //CREAR FUNCION QUE ENVIE ARRAY DE NOMBRES Y NO DE A UNO
-                  if (mensaje(7, localVersion, data->ip, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
+                  if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                     syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");

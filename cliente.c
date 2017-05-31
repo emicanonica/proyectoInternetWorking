@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
   //printf("%s\n", idUsuario);
   char * direccion = getConf(2);
   //printf("%s\n", direccion);
-  uint32_t IpDestino = inet_addr("192.168.0.18"); //obtener de tabla
+  uint32_t IpDestino = inet_addr("192.168.0.12"); //obtener de tabla
   uint32_t localIp = inet_addr(getConf(4));   //se utiliza en multicast solamente
   //uint32_t MasActualIp = inet_addr("192.168.0.17"); //obtener de tabla !IMPORTANTE!
 
@@ -60,11 +60,11 @@ int main(int argc, char const *argv[]) {
     setConf(2,str2);
 
   }else if (strcmp(argv[1], "solicitud") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
-  /*  if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
+    if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
-    }*/
+    }
     //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD
-    if (mensaje(6, localVersion, IpDestino, idUsuario) < 0) {
+    if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'solicitud'");
     }
   }else if (strcmp(argv[1], "") == 0){ //ESTO NO FUNCIONA

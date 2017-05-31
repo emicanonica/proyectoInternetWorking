@@ -28,7 +28,7 @@ struct str_data {																//struct que se enviara
 //  int checksum[16];
 };
 
-int mensaje(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuario){
+int mensaje(uint8_t cod, uint64_t version, uint32_t ip, uint32_t ipOrigen, char * id_usuario){
 
   char buffer[tam];
   //data es un puntero al struct str_data.
@@ -38,7 +38,7 @@ int mensaje(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuario){
   //Asignacion
   data->cod = cod;
   data->version = version;  //dd.mm.aa.hh.min
-  data->ip = ip;            //ip al que voy a enviar, esto esta mal, aca debo poner MI IP .
+  data->ip = ipOrigen;            //ip; //ip al que voy a enviar.
   strcpy(data->id_usuario , id_usuario);
   //obtener mi ip, este voy a enviarlo, el otro es la direccion al que voy a enviar el mensaje
 
