@@ -51,11 +51,8 @@ char ipb[15];
 char ip[15];
 char usuariob[5];
 FILE *pf;
-FILE *auxf;
-a = 0;
 pf = fopen("tabla.txt", "r+");
-auxf = fopen("tablaaux.txt", "w+");
-
+a = 0;
 printf ("ingrese usuario a buscar (5 caracteres)\n");
 scanf ("%s", &usuariob);
 printf ("ingrese nueva version (12 caracteres)\n");
@@ -63,27 +60,52 @@ scanf ("%s", &versionb);
 printf ("ingrese nuevo ip\n");
 scanf ("%s", &ipb);
 
-while(!feof(pf))
-{	
-  fscanf(pf, "%s %s %s", &usuario, &version, &ip);
-   if(!feof(pf)){
-     a = strcmp(usuario, usuariob);
-      if(a != 0){
-       fprintf(auxf, "%s %s %s\n", usuario, version, ip);
-                }
-       else {
-          fprintf(auxf, "%s %s %s\n", usuariob, versionb, ipb);
-            }
-  }
-}
-
-fclose(auxf);
+while(!feof(pf)){
+fscanf(pf, "%s %s %s", &usuario, &version, &ip);
+ if(!feof(pf)){
+ 	if(strcmp(usuario, usuariob) == 0){
+	 a = 1;
+	}//end if
+ 		}//end if
+ 		}//end while
 fclose(pf);
-int remove(pf);
-rename("tablaaux.txt", "tabla.txt");
-printf("tabla actualizada...\n");
-return (0);
-}
+	if(a == 1) {
+	printf("entro a actualizar");
+	 FILE *pf;
+	 FILE *auxf;
+	 pf = fopen("tabla.txt", "r+");
+	 auxf = fopen("tablaaux.txt", "w+");
+		//Esto lo hago si encuentro al usuario q quiero agregar
+
+		while(!feof(pf)){	
+  			fscanf(pf, "%s %s %s", &usuario, &version, &ip);
+  				 if(!feof(pf)){
+					 printf("%s %s %s", usuario, version, ip);
+      					if(strcmp(usuario, usuariob)== 0){
+       					 fprintf(auxf, "%s %s %s\n", usuariob, versionb, ipb);
+                							}
+       					else {
+          				 fprintf(auxf, "%s %s %s\n", usuario, version, ip);
+            					}//end if
+  					}//end if
+				}//end while
+		fclose(auxf);
+		fclose(pf);
+		//remove(pf);
+		//rename("tablaaux.txt", "tabla.txt");
+			}//end if
+
+	//Agrego el usuario al final de la tabla si no existe
+
+	else{
+	FILE *pf;
+	pf = fopen("tabla.txt", "a+");
+	fprintf(pf, "%s %s %s\n", usuariob, versionb, ipb);
+	fclose(pf);
+	}
+	printf("tabla actualizada...\n");
+	return (0);
+	}
 
 
 
@@ -94,7 +116,7 @@ unsigned int usuario;
 unsigned long version;
 char ip[15];
 FILE *pf;
-pf = fopen("tabla.txt", "at");
+pf = fopen("tabla.txt", "a+");
 
 printf("ingrese id de usuario:(5 caracteres)\n");
 scanf("%d", &usuario);
