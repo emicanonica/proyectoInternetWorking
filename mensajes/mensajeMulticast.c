@@ -79,7 +79,7 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
   else
     printf("Envio de datagrama --- OK\n");
 
-
+/*
   if (cod == 3) {
 
       struct sockaddr_in localSock;
@@ -117,6 +117,6 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
         else
           printf("Usted se encuentra en la version más actual\n");
       }
-  }
+  }*/
   return 0;
 }

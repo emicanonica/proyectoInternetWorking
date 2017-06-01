@@ -33,7 +33,7 @@ int datalen;
 //prueba de envio de archivos
 DIR *dir;
 struct dirent *ent;
-
+char buffer[tam];
 
 struct str_data {
   //int id_mensage[16];
@@ -44,10 +44,6 @@ struct str_data {
   uint32_t ip;
   //int checksum[16];
 };
-
-char buffer[tam];
-
-
 
 //FUNCTIONS
 static void deamon(){
@@ -92,75 +88,6 @@ static void deamon(){
   close(STDERR_FILENO);
 
   openlog ("firstdaemon", LOG_PID, LOG_DAEMON);
-}
-
-void print_ip(int ip){
-    unsigned char bytes[4];
-    bytes[0] = (ip >> 24) & 0xFF;
-    bytes[1] = (ip >> 16) & 0xFF;
-    bytes[2] = (ip >> 8) & 0xFF;
-    bytes[3] = ip & 0xFF;
-
-    syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
-    printf("el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
-}
-
-int getIpAddr(){
-  FILE *f;
-  char line[100] , *p , *c;
-
-  f = fopen("/proc/net/route" , "r");
-
-  while(fgets(line , 100 , f)){
-      p = strtok(line , " \t");
-      c = strtok(NULL , " \t");
-
-      if(p!=NULL && c!=NULL)
-      {
-          if(strcmp(c , "00000000") == 0)
-          {
-              //printf("Default interface is : %s \n" , p);
-              break;
-          }
-      }
-  }
-    //which family do we require , AF_INET or AF_INET6
-    int fm = AF_INET;
-    struct ifaddrs *ifaddr, *ifa;
-    int family , s;
-    char host[NI_MAXHOST];
-
-    if (getifaddrs(&ifaddr) == -1)
-    {
-        perror("getifaddrs");
-        exit(EXIT_FAILURE);
-    }
-
-    //Walk through linked list, maintaining head pointer so we can free list later
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next){
-        if (ifa->ifa_addr == NULL){
-            continue;
-        }
-
-        family = ifa->ifa_addr->sa_family;
-
-        if(strcmp( ifa->ifa_name , p) == 0){
-            if (family == fm){
-                s = getnameinfo( ifa->ifa_addr, (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6) , host , NI_MAXHOST , NULL , 0 , NI_NUMERICHOST);
-
-                if (s != 0){
-                    printf("getnameinfo() failed: %s\n", gai_strerror(s));
-                    exit(EXIT_FAILURE);
-                }
-
-                //printf("address: %s", host);
-                setConf(4,host);
-            }
-            //printf("\n");
-        }
-    }
-    freeifaddrs(ifaddr);
-    return 0;
 }
 
 int main(int argc, char *argv[]){
@@ -269,7 +196,8 @@ int main(int argc, char *argv[]){
             syslog (LOG_NOTICE, "llego al case 1" );
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-            agregarUsuario(data->id_usuario, data->version, data->ip);
+            //agregarUsuario(data->id_usuario, data->version, data->ip);
+            buscarusuario(data->id_usuario, data->version, data->ip);
 
             if (mensaje(2, localVersion, data->ip, localIp, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -288,7 +216,11 @@ int main(int argc, char *argv[]){
             memset(buffer, '\0', 1000);
         case 2://resibo id_usuario y guardo en tabla
           //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
-          agregarUsuario(data->id_usuario, data->version, data->ip);
+          //agregarUsuario(data->id_usuario, data->version, data->ip);
+
+          //hay que arreglar Esto
+          buscarusuario(data->id_usuario, data->version, data->ip);
+
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -334,7 +266,8 @@ int main(int argc, char *argv[]){
           memset(buffer, '\0', 1000);
           break;
         case 5:
-          //IMPRIMIR MENSAJE DE ERROR DE ENVIO DE ARCHIVOS(POR AHORA SOLO FALLA EN ESO);
+          //SI ES RESPUESTA A 3 ENTONCES NO HAGO NADA
+          //SI ES RESPUESTA A 6 IMPRIMIR MENSAJE DE ERROR DE ENVIO DE ARCHIVOS(POR AHORA SOLO FALLA EN ESO);
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 5" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -355,7 +288,6 @@ int main(int argc, char *argv[]){
                   printf ("%s\n", ent->d_name);
                   //pasar como parametro el nombre del archivo
                   //enviarArchivo(cod, ent->d_name, data->ip, tamArchivo);
-                  //CREAR FUNCION QUE ENVIE ARRAY DE NOMBRES Y NO DE A UNO
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                     syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
@@ -381,6 +313,7 @@ int main(int argc, char *argv[]){
           break;
         case 7://recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO
+          //¿QUE PASA SI ESTA VACIO?
 
           enviarArchivo(data->ip, data->id_usuario); //el nombre del archivo va guardado en id_usuario
 

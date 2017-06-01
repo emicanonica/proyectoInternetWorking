@@ -33,6 +33,7 @@ int main(int argc, char const *argv[]) {
     if (mensajeMulticast(1, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'hola'");
     }
+    //SI ENVIO HOLA Y NO HAY RESPUESTA ENTONCES MI REPOSITORIO ES LA UNICA VERSION.
   } else if (strcmp(argv[1], "version") == 0) { //envia un mensaje con COD=3 por multicast para verificar las versiones
     if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
@@ -46,6 +47,7 @@ int main(int argc, char const *argv[]) {
     scanf("%s",str2);
     setConf(2,str2);
   } else if (strcmp(argv[1], "conf") == 0) { //reiniciar la configuracion, pregunta nuevo id y repositorio y reinicia el ip y la version
+    //BUSCAR Y AGREGAR IP A .CONF
     FILE *pf;
     pf = fopen(".conf", "w+");
     fprintf(pf, "id de usuario:\nUbicación del repositorio:\nVersion:\nIp:\n");
@@ -63,7 +65,7 @@ int main(int argc, char const *argv[]) {
     if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
-    //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD
+    //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD (actualizar IpDestino con el mas actual de la tabla)
     if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'solicitud'");
     }
@@ -76,6 +78,9 @@ int main(int argc, char const *argv[]) {
     printf("\npruebe con:\n \033[1m\033[37mhola\033[0m <-- Unirse al grupo multicast y al proyecto\n \033[1m\033[37mversion\033[0m <-- consultar version más reciente\n \033[1m\033[37msolicitud\033[0m<-- solicitar actualizacion del repositorio local\n \033[1m\033[37mconf\033[0m <-- cargar nombre de usuario y repositorio a utilizar\n");
     printf("\n Si es la primera vez que utiliza este programa corra en consola el comando './cliente conf' para realizar la configuración inicial\n");
   }
+
+  //FALTA OPCION PARA AGREGAR ARCHIVOS
+  //CREAR CARPETA PARALELA A LA UBICACION DEL REOPSITRIO ESPECIFICADO POR EL USUARIO Y USAR ESTA PARA ENVIAR LOS ARCHIVOS
 
 
   return 0;
