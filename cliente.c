@@ -23,7 +23,7 @@ int main(int argc, char const *argv[]) {
   //printf("%s\n", idUsuario);
   char * direccion = getConf(2);
   //printf("%s\n", direccion);
-  uint32_t IpDestino = inet_addr("192.168.0.12"); //obtener de tabla
+  uint32_t IpDestino = inet_addr("192.168.0.16"); //obtener de tabla
   uint32_t localIp = inet_addr(getConf(4));   //se utiliza en multicast solamente
   //uint32_t MasActualIp = inet_addr("192.168.0.17"); //obtener de tabla !IMPORTANTE!
 

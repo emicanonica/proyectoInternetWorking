@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
     printf("Adding multicast group...OK.\n");
 
 
-  while (1) {
+  do{
 
     char ch;
     //Leyendo desde el socket
@@ -250,7 +250,7 @@ int main(int argc, char *argv[]){
     }else{
 
       //para hacer que no el mensaje de si mismo
-      if (strcmp(data->id_usuario , idUsuario)){
+      if (data->ip == localIp){
         continue;
       }
 
@@ -288,7 +288,7 @@ int main(int argc, char *argv[]){
             memset(buffer, '\0', 1000);
         case 2://resibo id_usuario y guardo en tabla
           //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
-          //agregarUsuario(data->id_usuario, data->version, data->ip);
+          agregarUsuario(data->id_usuario, data->version, data->ip);
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -394,7 +394,7 @@ int main(int argc, char *argv[]){
           break;
       } //fin swtich
     } //fin else
-  } //fin while
+  } while(1); //fin while
 
     return 0;
 }
