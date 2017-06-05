@@ -12,42 +12,58 @@
 #include "mensajes/mensajeMulticast.h"
 #include "gestTabla.h"
 
+char str1[50],str2[500];
 
 int main(int argc, char const *argv[]) {
 
-
+  if (access(".conf",F_OK) != 0) {
+    printf("No es posible encontrar la configuracion, por favor ingrese los siguientes datos:\n");
+    FILE *pf;
+    pf = fopen(".conf", "w+");
+    fprintf(pf, "id de usuario:\nUbicación del repositorio:\nVersion:\nIp:\n");
+    fclose(pf);
+    printf("Ingrese su nombre de usuario: ");
+    scanf("%s",str1);
+    setConf(1,str1);
+    printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
+    //COMPROBAR QUE LA CARPETA SEA VALIDA, EN CASO CONTRARIO PEDIR OTRA VEZ
+    //VERIFICAR QUE LA DIRECCION TERMINE CON "/"
+    scanf("%s",str2);
+    setConf(2,str2);
+    getIpAddr();
+  }
 
   char *ptr;
   unsigned long localVersion = strtol(getConf(3),&ptr,10); //obtener de tabla
   char * idUsuario = getConf(1);
-  //printf("%s\n", idUsuario);
   char * direccion = getConf(2);
-  //printf("%s\n", direccion);
   uint32_t IpDestino = inet_addr("192.168.0.16"); //obtener de tabla
   uint32_t localIp = inet_addr(getConf(4));   //se utiliza en multicast solamente
   //uint32_t MasActualIp = inet_addr("192.168.0.17"); //obtener de tabla !IMPORTANTE!
-
-  char str1[50],str2[500];
 
   if (strcmp(argv[1], "hola") == 0) {   //envia un mensaje con COD=1 por multicast para cargar las tablas
     if (mensajeMulticast(1, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'hola'");
     }
     //SI ENVIO HOLA Y NO HAY RESPUESTA ENTONCES MI REPOSITORIO ES LA UNICA VERSION.
+    //EN CASO DE QUE OCURRA LO DE ARRIBA LO UNICO QUE HAY QUE HACER ES: VERIFICAR SI LA TABLA ESTA VACIA, SI LO ESTÁ IMPRIMIR UN MENSAJE QUE DIGA QUE NO HAY MAS USUARIOS, SINO, IMPRIMIR "LA TABLA SE HA ACTUALIZADO CON EXITO"
+
   } else if (strcmp(argv[1], "version") == 0) { //envia un mensaje con COD=3 por multicast para verificar las versiones
     if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
+
   } else if (strcmp(argv[1], "setId") == 0) { //cambiar nombre de usuarion IMPORTANTE:NO SE PUEDEN INGRESAR ESPACIOS (ARREGLAR)
     printf("Ingrese su nombre de usuario: ");
     scanf("%s",str1);
     setConf(1,str1);
+
   } else if (strcmp(argv[1], "setDir") == 0) { //cambiar repositorio a ser observado
     printf("Ingrese la direccion de la carpeta donde desea que se realice la copia de archivos: ");
     scanf("%s",str2);
     setConf(2,str2);
+
   } else if (strcmp(argv[1], "conf") == 0) { //reiniciar la configuracion, pregunta nuevo id y repositorio y reinicia el ip y la version
-    //BUSCAR Y AGREGAR IP A .CONF
     FILE *pf;
     pf = fopen(".conf", "w+");
     fprintf(pf, "id de usuario:\nUbicación del repositorio:\nVersion:\nIp:\n");
@@ -60,8 +76,9 @@ int main(int argc, char const *argv[]) {
     //verificar que la direccion termine con "/" sino agregarla
     scanf("%s",str2);
     setConf(2,str2);
+    getIpAddr();
 
-  }else if (strcmp(argv[1], "solicitud") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
+  }else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
     if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }

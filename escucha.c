@@ -12,9 +12,6 @@
 #include <stdbool.h>
 #include <dirent.h>
 
-#include <netdb.h>
-#include <ifaddrs.h>
-
 #include "mensajes/mensaje.h"
 #include "mensajes/mensajeMulticast.h"
 #include "gestTabla.h"
@@ -30,10 +27,10 @@ struct sockaddr_in sourceSock;
 int sock;
 int datalen;
 
-//prueba de envio de archivos
+//para el envio de archivos
 DIR *dir;
 struct dirent *ent;
-char buffer[tam];
+
 
 struct str_data {
   //int id_mensage[16];
@@ -44,6 +41,8 @@ struct str_data {
   uint32_t ip;
   //int checksum[16];
 };
+
+char buffer[tam];
 
 //FUNCTIONS
 static void deamon(){
@@ -94,8 +93,6 @@ int main(int argc, char *argv[]){
 
   char *direccion = getConf(2);//"/home/emi/git/proyectoInternetWorking/mensajes/";
 
-  getIpAddr();
-
   char *ptr;
   unsigned long localVersion = strtol(getConf(3),&ptr,10); //obtener de tabla
   char * idUsuario = getConf(1); //obtener de tabla
@@ -108,6 +105,8 @@ int main(int argc, char *argv[]){
   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
   syslog (LOG_NOTICE, "arranco el log.");
   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
+LOOP:  while(1){
 
   //inicio del programa
   struct str_data *data;
@@ -136,6 +135,7 @@ int main(int argc, char *argv[]){
     printf("Setting SO_REUSEADDR...OK.\n");
 
 
+
   memset((char *) &localSock, 0, sizeof(localSock));
   localSock.sin_family = AF_INET;
   localSock.sin_port = htons(4321);
@@ -162,11 +162,17 @@ int main(int argc, char *argv[]){
     printf("Adding multicast group...OK.\n");
 
 
-  do{
-
     char ch;
     //Leyendo desde el socket
+
     datalen = sizeof(buffer);
+
+
+
+    syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+    syslog (LOG_NOTICE, "entro al while" );
+    syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
     if(read(sock, buffer, datalen) < 0){
       perror("error de lectura");
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -176,10 +182,14 @@ int main(int argc, char *argv[]){
       exit(1);
     }else{
 
+      syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+      syslog (LOG_NOTICE, "esta leyendo" );
+      syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
       //para hacer que no el mensaje de si mismo
-      if (data->ip == localIp){
+      /*if (data->ip == localIp){
         continue;
-      }
+      }*/
 
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       syslog (LOG_NOTICE, "el cod es:%i, la version es:%ld, el id es:%s", data->cod, data->version, data->id_usuario );
@@ -197,7 +207,7 @@ int main(int argc, char *argv[]){
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
             //agregarUsuario(data->id_usuario, data->version, data->ip);
-            buscarusuario(data->id_usuario, data->version, data->ip);
+            //buscarusuario(data->id_usuario, data->version, data->ip);
 
             if (mensaje(2, localVersion, data->ip, localIp, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -211,24 +221,26 @@ int main(int argc, char *argv[]){
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
             //VACIA BUFFER
-            while ((ch = getchar()) != '\n' && ch != EOF) { }
-            break;
-            memset(buffer, '\0', 1000);
+            //while ((ch = getchar()) != '\n' && ch != EOF) { }
+            //memset(buffer, '\0', 1000);
+            goto LOOP;
+            //break;
         case 2://resibo id_usuario y guardo en tabla
           //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
           //agregarUsuario(data->id_usuario, data->version, data->ip);
 
           //hay que arreglar Esto
-          buscarusuario(data->id_usuario, data->version, data->ip);
+          //buscarusuario(data->id_usuario, data->version, data->ip);
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
         case 3: //respuesta positiva o negativa a consulta de version version
           if (data->version < localVersion) {
 
@@ -252,30 +264,35 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
         case 4:
           //ACTUALIZAR LA TABLA
+          printf("La version que posee actualmente se encuentra desactualizada, para actualizarla corra el comando ./cliente actualizar\n");
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 4" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
         case 5:
-          //SI ES RESPUESTA A 3 ENTONCES NO HAGO NADA
+          //SI ES RESPUESTA A 3 ENTONCES NO HAGO NADA Y IMPRIMO QUE EL USUARIO ESTA ACTUALIZADO
+          printf("Usted se encuentra en la version más actual\n");
           //SI ES RESPUESTA A 6 IMPRIMIR MENSAJE DE ERROR DE ENVIO DE ARCHIVOS(POR AHORA SOLO FALLA EN ESO);
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 5" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
         case 6://solicitud de recibida de archivos, envio de mensaje con cod=7 y los archivos
           //ENVIAR LOS ARCHIVOS CON UN MENSAJE CON COD=7
 
@@ -286,8 +303,6 @@ int main(int argc, char *argv[]){
                 }else{
 
                   printf ("%s\n", ent->d_name);
-                  //pasar como parametro el nombre del archivo
-                  //enviarArchivo(cod, ent->d_name, data->ip, tamArchivo);
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                     syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
@@ -308,9 +323,10 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
         case 7://recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO
           //¿QUE PASA SI ESTA VACIO?
@@ -322,12 +338,13 @@ int main(int argc, char *argv[]){
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
-          while ((ch = getchar()) != '\n' && ch != EOF) { }
+          //while ((ch = getchar()) != '\n' && ch != EOF) { }
           memset(buffer, '\0', 1000);
-          break;
+          goto LOOP;
+          //break;
       } //fin swtich
     } //fin else
-  } while(1); //fin while
+  } //fin while
 
     return 0;
 }

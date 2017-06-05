@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <syslog.h>
-
+#include <netdb.h>
+#include <ifaddrs.h>
 #include <dirent.h>
 
 #include "gestTabla.h"
@@ -26,7 +27,7 @@ int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
 
 int a;
 char * usuario;
-uint64_t version;
+long version;
 //char versionb[12];
 //char ipb[15];
 uint32_t ip;
@@ -42,7 +43,7 @@ printf ("ingrese nuevo ip\n");
 scanf ("%s", &ipb);*/
 
 while(!feof(pf)){
-fscanf(pf, "%s %ld %d", usuario, version, ip);
+fscanf(pf, "%s %ld %d", usuario, &version, &ip);
  if(!feof(pf)){
  	if(strcmp(usuario, id_usuario) == 0){
 	 a = 1;
@@ -59,7 +60,7 @@ fclose(pf);
 		//Esto lo hago si encuentro al usuario q quiero agregar
 
 		while(!feof(pf)){
-  			fscanf(pf, "%s %ld %d", usuario, version, ip);
+  			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
   				 if(!feof(pf)){
 					 //printf("%s %ld %d", usuario, version, ip);
       					if(strcmp(usuario, id_usuario)== 0){

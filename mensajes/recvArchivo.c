@@ -79,7 +79,7 @@ int recvArchivo(char * nombreArchivo)
         }
 
         close(connfd);
-        sleep(1);
+        sleep(1000);
     //}
 
 
