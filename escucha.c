@@ -207,7 +207,7 @@ LOOP:  while(1){
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
             //agregarUsuario(data->id_usuario, data->version, data->ip);
-            //buscarusuario(data->id_usuario, data->version, data->ip);
+		buscarusuario(data->id_usuario, data->version, data->ip);
 
             if (mensaje(2, localVersion, data->ip, localIp, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");

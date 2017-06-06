@@ -23,46 +23,37 @@ void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
 }
 
 int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
-/*buscar un usuario en especifico y actualiza su version e ip*/
+/*agrega un usuario junto a su version e ip, si ya esta agregado solo actualiza su version e ip*/
 
 int a;
 char * usuario;
-long version;
-//char versionb[12];
-//char ipb[15];
+uint64_t version;
 uint32_t ip;
-//char usuariob[5];
 FILE *pf;
 pf = fopen("tabla.txt", "r+");
 a = 0;
-/*printf ("ingrese usuario a buscar (5 caracteres)\n");
-scanf ("%s", &usuariob);
-printf ("ingrese nueva version (12 caracteres)\n");
-scanf ("%s", &versionb);
-printf ("ingrese nuevo ip\n");
-scanf ("%s", &ipb);*/
 
 while(!feof(pf)){
 fscanf(pf, "%s %ld %d", usuario, &version, &ip);
  if(!feof(pf)){
  	if(strcmp(usuario, id_usuario) == 0){
 	 a = 1;
-	}//end if
+		}//end if
  		}//end if
  		}//end while
 fclose(pf);
+
 	if(a == 1) {
-	printf("entro a actualizar");
-	 FILE *pf;
 	 FILE *auxf;
 	 pf = fopen("tabla.txt", "r+");
 	 auxf = fopen("tablaaux.txt", "w+");
-		//Esto lo hago si encuentro al usuario q quiero agregar
+
+		//Usuario existente, se actualiza version e ip
 
 		while(!feof(pf)){
   			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
   				 if(!feof(pf)){
-					 //printf("%s %ld %d", usuario, version, ip);
+
       					if(strcmp(usuario, id_usuario)== 0){
        					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
                 							}
@@ -73,21 +64,18 @@ fclose(pf);
 				}//end while
 		fclose(auxf);
 		fclose(pf);
-		//remove(pf);
-		//rename("tablaaux.txt", "tabla.txt");
+		remove(pf);
+		rename("tablaaux.txt", "tabla.txt");
 			}//end if
 
 	//Agrego el usuario al final de la tabla si no existe
 
 	else{
-	FILE *pf;
 	pf = fopen("tabla.txt", "a+");
 	fprintf(pf, "%s %ld %d\n", id_usuario, versionb, ipb);
 	fclose(pf);
 	}
-	printf("tabla actualizada...\n");
-	return (0);
-	}
+}
 
   void print_ip(int ip){
       unsigned char bytes[4];
