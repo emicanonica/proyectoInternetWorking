@@ -187,9 +187,9 @@ LOOP:  while(1){
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
       //para hacer que no el mensaje de si mismo
-      /*if (data->ip == localIp){
-        continue;
-      }*/
+      if (data->ip == localIp){
+        goto LOOP;
+      }
 
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
       syslog (LOG_NOTICE, "el cod es:%i, la version es:%ld, el id es:%s", data->cod, data->version, data->id_usuario );
