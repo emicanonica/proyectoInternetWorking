@@ -14,7 +14,8 @@
 
 int enviarArchivo(uint32_t ip , char * nombreArchivo)
 {
-    char * direccion = getConf(2);
+    char * direccion = malloc(1000);
+    direccion = strcat(getConf(2), nombreArchivo);
 
     int sockfd = 0;
     int bytesReceived = 0;
@@ -39,7 +40,7 @@ int enviarArchivo(uint32_t ip , char * nombreArchivo)
     }
 
     FILE *fp;
-    fp = fopen( nombreArchivo, "ab");
+    fp = fopen( direccion, "wb+");
     if(NULL == fp)
     {
         printf("Error opening file");
@@ -51,10 +52,10 @@ int enviarArchivo(uint32_t ip , char * nombreArchivo)
         printf("Bytes received %d\n",bytesReceived);
 
         fwrite(recvBuff, 1,bytesReceived,fp);
-        //printf("%s \n", recvBuff);
+        printf("%s \n", recvBuff);
         //FILE *pf;
-        //pf = fopen("test2.txt", "wb");
-        //fprintf(pf, "%s\n",recvBuff);
+        //pf = fopen(direccion, "wb");
+        //fprintf(fp, "%s\n",recvBuff);
     }
 
     if(bytesReceived < 0)

@@ -59,10 +59,10 @@ int mensaje(uint8_t cod, uint64_t version, uint32_t ip, uint32_t ipOrigen, char 
   memset((char *) &destSock, 0, sizeof(destSock));
   destSock.sin_family = AF_INET;
   destSock.sin_addr.s_addr = ip; //ACA DEBE IR "IP" EL IP A DONDE LO ESTOY ENVIANDO
-  if (cod == 6 || cod == 2) {
-    destSock.sin_port = htons(4321);
-  } else {
+  if (cod == 1 || cod == 3) {
     destSock.sin_port = htons(4322);
+  } else {
+    destSock.sin_port = htons(4321);
   }
 
 

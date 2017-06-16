@@ -32,6 +32,7 @@ uint32_t ip;
 FILE *pf;
 pf = fopen("tabla.txt", "r+");
 a = 0;
+char * filename = "tabla.txt";
 
 while(!feof(pf)){
 fscanf(pf, "%s %ld %d", usuario, &version, &ip);
@@ -64,7 +65,7 @@ fclose(pf);
 				}//end while
 		fclose(auxf);
 		fclose(pf);
-		remove(pf);
+		remove(filename);
 		rename("tablaaux.txt", "tabla.txt");
 			}//end if
 

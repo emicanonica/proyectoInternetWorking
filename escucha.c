@@ -98,7 +98,7 @@ int main(int argc, char *argv[]){
   char * idUsuario = getConf(1); //obtener de tabla
   //uint32_t localIp = inet_addr("192.168.0.17"); //obtener de tabla
   uint32_t localIp = inet_addr(getConf(4)); //obtener de tabla
-  uint32_t IpDestino = inet_addr("192.168.0.18"); //provisorio
+  uint32_t IpDestino = inet_addr("192.168.0.12"); //provisorio
 
   //deamon();
 
@@ -186,7 +186,7 @@ LOOP:  while(1){
       syslog (LOG_NOTICE, "esta leyendo" );
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-      //para hacer que no el mensaje de si mismo
+      //para hacer que no lea el mensaje de si mismo. COMENTAR PARA QUE SE LEA SUS PROPIOS MENSAJES
       if (data->ip == localIp){
         goto LOOP;
       }
@@ -207,7 +207,7 @@ LOOP:  while(1){
             syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
             //agregarUsuario(data->id_usuario, data->version, data->ip);
-		buscarusuario(data->id_usuario, data->version, data->ip);
+		        buscarusuario(data->id_usuario, data->version, data->ip);
 
             if (mensaje(2, localVersion, data->ip, localIp, idUsuario) < 0) { //2 es el cod para la respuesta al cod 1 del usuario
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -229,8 +229,7 @@ LOOP:  while(1){
           //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
           //agregarUsuario(data->id_usuario, data->version, data->ip);
 
-          //hay que arreglar Esto
-          //buscarusuario(data->id_usuario, data->version, data->ip);
+          buscarusuario(data->id_usuario, data->version, data->ip);
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 2" );
@@ -303,14 +302,28 @@ LOOP:  while(1){
                 }else{
 
                   printf ("%s\n", ent->d_name);
+                  printf("%ld\n", localVersion);
+                  print_ip(localIp);
+                  print_ip(data->ip);
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                     syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   }
 
+                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+                  syslog (LOG_NOTICE, "salio de tomar el nombre y ahora tiene que entrar a recvArchivo" );
+                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
                   recvArchivo(ent->d_name);
+                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+                  syslog (LOG_NOTICE, "salio de recvArchivo" );
+                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                 }
+
+                syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+                syslog (LOG_NOTICE, "salio de while" );
+                syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
               }
               closedir (dir);
@@ -319,7 +332,7 @@ LOOP:  while(1){
             perror ("");
           }
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 6" );
+          syslog (LOG_NOTICE, "salio case 6" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER
@@ -327,14 +340,21 @@ LOOP:  while(1){
           memset(buffer, '\0', 1000);
           goto LOOP;
           //break;
-        case 7://recibir y copiar los archivos a mi directorio
+
+        case 7: //recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO
           //¿QUE PASA SI ESTA VACIO?
+
+          sleep(1);
+
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+          syslog (LOG_NOTICE, "llego al case 7" );
+          syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           enviarArchivo(data->ip, data->id_usuario); //el nombre del archivo va guardado en id_usuario
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-          syslog (LOG_NOTICE, "llego al case 7" );
+          syslog (LOG_NOTICE, "salio case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           //VACIA BUFFER

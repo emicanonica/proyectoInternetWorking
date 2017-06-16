@@ -42,13 +42,14 @@ int recvArchivo(char * nombreArchivo)
         return -1;
     }
 
-
     //while(1){ //poner condicion de salida
 
 
         connfd = accept(listenfd, (struct sockaddr*)NULL ,NULL);
 
-        FILE *fp = fopen( direccion, "rb");
+        //printf("paso el listen\n");
+
+        FILE *fp = fopen( direccion, "r+b");
         if(fp==NULL)
         {
             printf("File open error ");
@@ -57,17 +58,29 @@ int recvArchivo(char * nombreArchivo)
 
         while(!feof(fp))
         {
-            unsigned char buff[1024]={0};
-            int nread = fread(buff,1,1024,fp);
+            //unsigned char * buff = malloc(1024);
+            unsigned char buff[256]={0};
+            //int nread = fread(buff,256,1,fp);
+            fread(buff,256,1,fp);
             //printf("Bytes read %d \n", nread);
+            printf("%s\n", buff );
 
+            //provisorio
+            printf("Sending \n");
+            write(connfd, buff, sizeof(buff));
+            if (feof(fp))
+                printf("End of file\n");
+            if (ferror(fp))
+                printf("Error reading\n");
+
+            /*
             if(nread > 0)
             {
-                //printf("Sending \n");
+                printf("Sending \n");
                 write(connfd, buff, nread);
             }
 
-            if (nread < 1024)
+            if (nread < 256)
             {
                 if (feof(fp))
                     printf("End of file\n");
@@ -75,11 +88,12 @@ int recvArchivo(char * nombreArchivo)
                     printf("Error reading\n");
                 break;
             }
+            */
 
         }
 
         close(connfd);
-        sleep(1000);
+        sleep(1);
     //}
 
 
