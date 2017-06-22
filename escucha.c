@@ -310,12 +310,10 @@ LOOP:  while(1){
                     syslog (LOG_NOTICE, "error en la funcion resp COD=6" );
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   }
+                  sleep(1);
+                  enviarArchivo(data->ip, data->id_usuario);
 
-                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-                  syslog (LOG_NOTICE, "salio de tomar el nombre y ahora tiene que entrar a recvArchivo" );
-                  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-                  recvArchivo(ent->d_name);
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   syslog (LOG_NOTICE, "salio de recvArchivo" );
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -345,13 +343,13 @@ LOOP:  while(1){
           //COPIAR ARCHIVOS A MI REPOSITORIO
           //¿QUE PASA SI ESTA VACIO?
 
-          sleep(1);
-
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-          enviarArchivo(data->ip, data->id_usuario); //el nombre del archivo va guardado en id_usuario
+          //enviarArchivo(data->ip, data->id_usuario); //el nombre del archivo va guardado en id_usuario
+
+          recvArchivo(ent->d_name);
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "salio case 7" );
