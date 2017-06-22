@@ -14,55 +14,34 @@
 
 int enviarArchivo(uint32_t ip , char * nombreArchivo)
 {
-    char * direccion = malloc(1000);
+    char * direccion = malloc(300);
     direccion = strcat(getConf(2), nombreArchivo);
 
-    int sockfd = 0;
-    int bytesReceived = 0;
-    char recvBuff[1024]; //ver si se puede poner ilimitado
-    memset(recvBuff, '0', sizeof(recvBuff));
+    int sd = 0;
     struct sockaddr_in serv_addr;
-
-    if((sockfd = socket(AF_INET, SOCK_STREAM, 0))< 0)
-    {
-        printf("\n Error : Could not create socket \n");
-        return 1;
-    }
+    char buffer[256];
+    int filedes;
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(1235);
-    serv_addr.sin_addr.s_addr = ip; //inet_addr("127.0.0.1"); //ip al que lo envio
+    serv_addr.sin_addr.s_addr = ip;//inet_addr("127.0.0.1");
 
-    if(connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))<0)
+    sd = socket(AF_INET, SOCK_STREAM, 0);
+
+    connect(sd,(struct sockaddr *)&serv_addr, sizeof(serv_addr));
+
+    FILE *f;
+    f = fopen(direccion, "rb");
+    filedes = fileno(f);
+
+    while( read(filedes, buffer, sizeof(buffer)) > 0 ) // es decir mientras no sea fin de archivo (read devuelve 0 cuando lee fin de archivo)
     {
-        printf("\n Error : Connect Failed \n");
-        return 1;
+        printf("%s\n",buffer);
+        send(sd, buffer, strlen(buffer), 0);
     }
 
-    FILE *fp;
-    fp = fopen( direccion, "wb+");
-    if(NULL == fp)
-    {
-        printf("Error opening file");
-        return 1;
-    }
-
-    while((bytesReceived = read(sockfd, recvBuff, sizeof(recvBuff))) > 0)
-    {
-        printf("Bytes received %d\n",bytesReceived);
-
-        fwrite(recvBuff, 1,bytesReceived,fp);
-        printf("%s \n", recvBuff);
-        //FILE *pf;
-        //pf = fopen(direccion, "wb");
-        //fprintf(fp, "%s\n",recvBuff);
-    }
-
-    if(bytesReceived < 0)
-    {
-        printf("\n Read Error \n");
-    }
-
+    close(sd); // Esto hace que del otro lado termine el while por que el read le devuelve 0
 
     return 0;
+
 }
