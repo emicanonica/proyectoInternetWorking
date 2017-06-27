@@ -7,6 +7,8 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "gestTabla.h"
 
@@ -75,6 +77,7 @@ fclose(pf);
 	pf = fopen("tabla.txt", "a+");
 	fprintf(pf, "%s %ld %d\n", id_usuario, versionb, ipb);
 	fclose(pf);
+  printf("La tabla de usuarios se ha actualizado\n");
 	}
 }
 
@@ -90,11 +93,13 @@ fclose(pf);
   }
 
 char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
+
+  char *confDir = getenv("HOME");
   FILE *pf;
   char *line = malloc (500);
   int len1,len2,c,cont;
   cont = 0;
-  pf = fopen(".conf", "r");
+  pf = fopen(confDir, "r");
   fseek(pf, 0, SEEK_SET);
   for (;;) {
     c = fgetc(pf);
@@ -121,12 +126,14 @@ char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
 }
 
 void setConf(int i, char * str){
+
+  char *confDir = getenv("HOME");
   FILE *pf;
   //char buffer[500];
   char *buffer = malloc (100000000);
   int len1,len2,len3,c,cont;
   cont = 0;
-  pf = fopen(".conf", "r+");
+  pf = fopen(confDir, "r+");
   fseek(pf, 0, SEEK_SET);
   for (;;) {
     c = fgetc(pf);
@@ -212,4 +219,15 @@ int getIpAddr(){
     }
     freeifaddrs(ifaddr);
     return 0;
+}
+
+int crearDir(){
+  char * dir = getenv("HOME");
+  strcat(dir,"/.NOMBRE");
+
+  if (access(dir,F_OK) != 0 ) {
+    mkdir(dir, 0700);
+  }
+
+  return 0;
 }

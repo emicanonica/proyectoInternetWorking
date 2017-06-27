@@ -13,4 +13,6 @@ void setConf(int i, char * str);
 
 int getIpAddr();
 
+int crearDir();
+
 #endif
