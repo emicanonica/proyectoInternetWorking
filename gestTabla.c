@@ -32,7 +32,7 @@ char * nombreusuario(){
 
   /*Se muestran los datos de la sesión en pantalla*/
   //printf("%s", pentry ->pw_name);
-  return(pentry ->pw_name);    
+  return(pentry ->pw_name);
 }
 
 void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
