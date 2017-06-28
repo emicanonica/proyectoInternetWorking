@@ -19,6 +19,7 @@ char *ptr, *confDir, *dir;
 unsigned long localVersion;
 char *idUsuario, *direccion;
 uint32_t IpDestino, localIp;
+char * nombreusu;
 
 int main(int argc, char const *argv[]) {
 
@@ -167,7 +168,30 @@ int main(int argc, char const *argv[]) {
     strftime(vt,16,"%Y%m%d%H%M%S", info);
     setConf(3,vt);
     //COPIAR ARCHIVOS DESDE LA UBICACION ESTABLECIDA A LA CARPETA DE LA APLICACION, LUEGO MANDAR UN MENSAJE HOLA PARA QUE ACTUALIZEN LAS TABLAS LOS OTROS USUARIOS
-
+		nombreusu = nombreusuario();
+		char * part2 = direccion; //direccion de la carpeta donde se guardan los archivos
+		char part[30] = "/home/"; //direccion de la carpeta donde se versiona y comparte los archivos, carpeta oculta la que puse es de ejemplo
+		char part3[30] = "/.nombre";		
+		char comando[70];
+		char cmd1[30] = "rm -r ";
+		char cmd2[30] = "cp -r ";
+		strcpy(comando , cmd1);
+		strcat(comando , part);
+		strcat(comando , nombreusu); 
+		strcat(comando , part3);
+		//printf("%s \n" , comando );
+		system( comando ); // el comando quedaria "rm -r /home/nombreusuario/.nombre"
+		//printf("carpeta eliminada\n");
+		strcpy(comando , cmd2);
+		strcat(comando , part2);
+		strcat(comando , " ");
+		strcat(comando , part);
+		strcat(comando , nombreusu); 
+		strcat(comando , part3);
+		//printf("%s \n" , comando );	
+		system( comando ); // el comando quedaria "cp -r carpeta visible carpeta oculta
+		//printf("carpeta copiada\n");
+    
 //ayuda
   }else if (strcmp(argv[1], "help") == 0) { //setea el tiempo local como numero de la version del repositorio
 

@@ -9,9 +9,31 @@
 #include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <pwd.h>
 
 #include "gestTabla.h"
 
+char * nombreusuario(){
+
+  char *login;
+  struct passwd *pentry;
+
+  /*login de sesión*/
+  if ((login = getlogin()) == NULL){
+    perror("getlogin");
+    exit(EXIT_FAILURE);
+  }
+
+  /*Contraseña de sesión*/
+  if ((pentry = getpwnam(login)) == NULL){
+    perror("getpwnam");
+    exit(EXIT_FAILURE);
+  }
+
+  /*Se muestran los datos de la sesión en pantalla*/
+  //printf("%s", pentry ->pw_name);
+  return(pentry ->pw_name);    
+}
 
 void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
 
