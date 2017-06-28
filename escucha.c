@@ -29,7 +29,7 @@ int datalen;
 //para el envio de archivos
 DIR *dir;
 struct dirent *ent;
-char *d, *AppDir;
+char *d, *AppDir, *confDir;
 bool a;
 
 struct str_data {
@@ -88,7 +88,23 @@ static void deamon(){
 
 int main(int argc, char *argv[]){
 
+//Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
+  crearDir();
+
 LOOP:  while(1){
+
+  d = getenv("HOME");
+  AppDir = d;
+  strcat(AppDir,"/");
+  confDir = AppDir;
+  strcat(confDir,".conf");
+  a = false;
+
+//Verificación de la existencia de los archivos de configuracion
+  if (access(confDir,F_OK) != 0) {
+    printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
+    exit(0);
+  }
 
 //Inicializacion de variables
   char *direccion = getConf(2);//"/home/emi/git/proyectoInternetWorking/mensajes/";
@@ -97,11 +113,6 @@ LOOP:  while(1){
   unsigned long localVersion = strtol(getConf(3),&ptr,10);
   char * idUsuario = getConf(1);
   uint32_t localIp = inet_addr(getConf(4));
-
-  d = getenv("HOME");
-  AppDir = d;
-  strcat(AppDir,"/.Nombre/");
-  a = false;
 
   //deamon();
 

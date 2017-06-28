@@ -23,7 +23,7 @@ char * nombreusu;
 
 int main(int argc, char const *argv[]) {
 
-  //Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
+//Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
   crearDir();
 
   dir = getenv("HOME");
@@ -31,9 +31,16 @@ int main(int argc, char const *argv[]) {
   strcat(confDir,"/.conf");
 
 //Verificación de la existencia de los archivos de configuracion
-  if (access(confDir,F_OK) != 0 && strcmp(argv[1], "conf") != 0 ) {
-    printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
-    exit(0);
+  if (argc > 1) {
+    if (access(confDir,F_OK) != 0 && strcmp(argv[1], "conf") != 0 ) {
+      printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
+      exit(0);
+    }
+  } else {
+    if (access(confDir,F_OK) != 0) {
+      printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
+      exit(0);
+    }
   }
 
 //verifica que haya un argumento
