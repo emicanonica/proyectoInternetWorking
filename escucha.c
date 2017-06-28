@@ -98,13 +98,13 @@ int main(int argc, char *argv[]){
   confDir = AppDir;
   strcat(confDir,".conf");
 
-LOOP:  while(1){
-
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
     printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
     exit(0);
   }
+
+LOOP:  while(1){
 
 //Inicializacion de variables
   char *direccion = getConf(2);//"/home/emi/git/proyectoInternetWorking/mensajes/";
