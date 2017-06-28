@@ -91,14 +91,14 @@ int main(int argc, char *argv[]){
 //Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
   crearDir();
 
-LOOP:  while(1){
-
+//Inicialización de variables para la localización del directorio de la aplicación
   d = getenv("HOME");
   AppDir = d;
   strcat(AppDir,"/");
   confDir = AppDir;
   strcat(confDir,".conf");
-  a = false;
+
+LOOP:  while(1){
 
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
@@ -293,6 +293,7 @@ LOOP:  while(1){
 
 //Busqueda de nombre de los archivos
 //CAMBIAR "direccion" POR LA UBICACION DEL REPOSITORIO DE LA APLICACION /HOME/USUARIO/.NOMBRE
+          a = false;
           if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
                 if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0){
