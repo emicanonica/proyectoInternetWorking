@@ -101,7 +101,7 @@ LOOP:  while(1){
   d = getenv("HOME");
   AppDir = d;
   strcat(AppDir,"/.Nombre/");
-  a = FALSE;
+  a = false;
 
   //deamon();
 
@@ -297,7 +297,7 @@ LOOP:  while(1){
                   }
 
                   sleep(1); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
-                  a = TRUE;
+                  a = true;
 
 //Crea una conexión TCP y envia el contenido del archivo
                   enviarArchivo(data->ip, data->id_usuario);
@@ -319,7 +319,7 @@ LOOP:  while(1){
             }
           }
 
-          if (a == TRUE) {
+          if (a == true) {
             if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en el envio de mensaje de directorio vacio en case 6" );
