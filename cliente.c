@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]) {
   if (argc <= 1){
     printf("Uso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t actualiza el repositorio local\n");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
     exit(0);
   }
@@ -111,7 +111,7 @@ int main(int argc, char const *argv[]) {
 //mensaje unicast 'actualizar'
   } else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
 
-    if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
+    if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
     //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD (actualizar IpDestino con el mas actual de la tabla)
@@ -168,7 +168,6 @@ int main(int argc, char const *argv[]) {
     info = localtime( &rawtime );
     strftime(vt,16,"%Y%m%d%H%M%S", info);
     setConf(3,vt);
-    //COPIAR ARCHIVOS DESDE LA UBICACION ESTABLECIDA A LA CARPETA DE LA APLICACION, LUEGO MANDAR UN MENSAJE HOLA PARA QUE ACTUALIZEN LAS TABLAS LOS OTROS USUARIOS
 		nombreusu = nombreusuario();
 		char * part2 = strcat(direccion,"*"); //direccion de la carpeta donde se guardan los archivos
 		char part[30] = "/home/"; //direccion de la carpeta donde se versiona y comparte los archivos, carpeta oculta la que puse es de ejemplo
@@ -196,7 +195,7 @@ int main(int argc, char const *argv[]) {
 
     printf("\nUso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
 
 //En caso de que se ingrese un argumento incorrecto
@@ -205,7 +204,7 @@ int main(int argc, char const *argv[]) {
     printf("\033[1m\033[37m%s\033[0m no es un argumento correcto\n", argv[1]);
     printf("\nUso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t actualiza el repositorio local\n");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
   }
 

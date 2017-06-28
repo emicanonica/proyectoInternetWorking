@@ -29,6 +29,8 @@ int datalen;
 //para el envio de archivos
 DIR *dir;
 struct dirent *ent;
+char *d, *AppDir;
+bool a;
 
 struct str_data {
   char  id_usuario[16];
@@ -95,7 +97,11 @@ LOOP:  while(1){
   unsigned long localVersion = strtol(getConf(3),&ptr,10);
   char * idUsuario = getConf(1);
   uint32_t localIp = inet_addr(getConf(4));
-  uint32_t IpDestino = inet_addr("192.168.0.12"); //provisorio
+
+  d = getenv("HOME");
+  AppDir = d;
+  strcat(AppDir,"/.Nombre/");
+  a = FALSE;
 
   //deamon();
 
@@ -276,10 +282,10 @@ LOOP:  while(1){
 
 //Busqueda de nombre de los archivos
 //CAMBIAR "direccion" POR LA UBICACION DEL REPOSITORIO DE LA APLICACION /HOME/USUARIO/.NOMBRE
-          if ((dir = opendir (direccion)) != NULL) {
+          if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
-                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0){
-                  //no hago nada
+                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0){
+                  //no hace nada
                 }else{
                   printf ("%s\n", ent->d_name);
 
@@ -291,6 +297,7 @@ LOOP:  while(1){
                   }
 
                   sleep(1); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
+                  a = TRUE;
 
 //Crea una conexión TCP y envia el contenido del archivo
                   enviarArchivo(data->ip, data->id_usuario);
@@ -298,12 +305,21 @@ LOOP:  while(1){
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   syslog (LOG_NOTICE, "salio de enviarArchivo" );
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+
                 }
 
               }
               closedir (dir);
 
           } else {
+            if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
+              syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+              syslog (LOG_NOTICE, "error en el envio de mensaje de directorio vacio en case 6" );
+              syslog (LOG_NOTICE, "+++++++++++++++++++++++");
+            }
+          }
+
+          if (a == TRUE) {
             if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en el envio de mensaje de directorio vacio en case 6" );
