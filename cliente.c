@@ -115,6 +115,7 @@ int main(int argc, char const *argv[]) {
       perror("Error de envio de mensaje multicast 'version'");
     }
     //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD (actualizar IpDestino con el mas actual de la tabla)
+    //VERIFICAR EN LA TABLA QUE LA VERSION LOCAL SEA MENOR QUE LA MAS ACTUALIZADA, EN ESTE CASO MANDAR UN MENSAJE QUE DIGA QUE SE TIENE LA VERSION MAS ACTUAL
     if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'solicitud'");
     }
