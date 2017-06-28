@@ -32,7 +32,7 @@ char * nombreusuario(){
 
   /*Se muestran los datos de la sesión en pantalla*/
   //printf("%s", pentry ->pw_name);
-  return(pentry ->pw_name);
+  return(pentry ->pw_name);    
 }
 
 void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
@@ -44,6 +44,65 @@ void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
 
   fclose(pf);
 
+}
+
+uint32_t versionmayor(uint64_t versionb){
+
+char * usuario;
+uint64_t version;
+uint32_t ip;
+char * usuariomax;
+uint64_t versionmax;
+uint32_t ipmax;
+FILE *pf;
+pf = fopen("tabla.txt", "r+");
+versionmax = 0;
+while(!feof(pf))
+{
+ fscanf(pf, "%s %ld %d", usuario, &version, &ip);
+ if(!feof(pf)){
+        if(version >= versionmax){
+        	versionmax = version;
+        	usuariomax = usuario;
+        	ipmax = ip;
+             }
+}
+}
+fclose(pf);
+if (versionmax == versionb){
+	printf("La version del repositorio es la mas actual");
+	}
+return (ipmax);
+}
+
+int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
+
+
+char * usuario;
+uint64_t version;
+uint32_t ip;
+FILE *pf;
+pf = fopen("tabla.txt", "r+");
+char * filename = "tabla.txt";
+FILE *auxf;
+auxf = fopen("tablaaux.txt", "w+");
+
+		while(!feof(pf)){
+  			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
+  				 if(!feof(pf)){
+
+      					if(strcmp(usuario, id_usuario)== 0){
+       					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
+                							}
+       					else {
+          				 fprintf(auxf, "%s %ld %d\n", usuario, version, ip);
+            					}//end if
+  					}//end if
+				}//end while
+fclose(auxf);
+fclose(pf);
+remove(filename);
+rename("tablaaux.txt", "tabla.txt");
 }
 
 int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
