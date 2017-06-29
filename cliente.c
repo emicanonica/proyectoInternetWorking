@@ -197,7 +197,7 @@ int main(int argc, char const *argv[]) {
     struct tm *info;
     time( &rawtime );
     info = localtime( &rawtime );
-    strftime(vt,16,"%Y%m%d%H%M%S", info);
+    strftime(vt,16,"%Y%m%d%H%M", info); //%S para segundos, lo saque porque superaba en cantidad de caracteres al formato uint64_t
     setConf(3,vt);
 
 //copia los archivos desde la ubicacion del repositorio establecida por el usuario a el directorio de la aplicación

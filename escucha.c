@@ -103,8 +103,6 @@ int main(int argc, char *argv[]){
   confDir = d;
   strcat(confDir,"/.conf");
 
-  printf("%s\n", confDir);
-
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
     printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
@@ -302,7 +300,7 @@ LOOP:  while(1){
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
-                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0){
+                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0 || strcmp(ent->d_name,"tabla.txt") == 0){
                   //no hace nada
                 }else{
                   printf ("%s\n", ent->d_name);
@@ -337,7 +335,7 @@ LOOP:  while(1){
             }
           }
 
-          if (a == true) {
+          if (a == false) {
             if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
               syslog (LOG_NOTICE, "error en el envio de mensaje de directorio vacio en case 6" );

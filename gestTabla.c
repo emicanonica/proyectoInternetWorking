@@ -94,11 +94,9 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
   pf = fopen(tdir, "r+");
   FILE *auxf;
   auxf = fopen(tauxdir, "w+");
-
 		while(!feof(pf)){
   			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
   				 if(!feof(pf)){
-
       					if(strcmp(usuario, id_usuario)== 0){
        					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
                 							}
@@ -331,6 +329,7 @@ int crearDir(){
     mkdir(dir, 0700);
     strcat(dir,"/tabla.txt");
     fp = fopen(dir,"w+");
+    fclose(fp);
   }
 
   return 0;
