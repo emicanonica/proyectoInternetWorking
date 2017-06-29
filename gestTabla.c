@@ -111,7 +111,6 @@ fclose(pf);
       bytes[3] = ip & 0xFF;
 
       syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
-      printf("el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
   }
 
 char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
@@ -246,9 +245,12 @@ int getIpAddr(){
 int crearDir(){
   char * dir = getenv("HOME");
   strcat(dir,"/.NOMBRE");
+  FILE *fp;
 
   if (access(dir,F_OK) != 0 ) {
     mkdir(dir, 0700);
+    strcat(dir,"/tabla.txt");
+    fp = fopen(dir,"w+");
   }
 
   return 0;
