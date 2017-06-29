@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
   } else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
 
 //Actualización de tabla.
-      if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
+      if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
         perror("Error de envio de mensaje multicast 'version'");
       }
 

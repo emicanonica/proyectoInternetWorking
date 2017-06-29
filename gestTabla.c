@@ -94,21 +94,23 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
   pf = fopen(tdir, "r+");
   FILE *auxf;
   auxf = fopen(tauxdir, "w+");
+
 		while(!feof(pf)){
   			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
   				 if(!feof(pf)){
       					if(strcmp(usuario, id_usuario)== 0){
        					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
-                							}
+                }
        					else {
           				 fprintf(auxf, "%s %ld %d\n", usuario, version, ip);
-            					}//end if
+            		}//end else
   					}//end if
 				}//end while
-fclose(auxf);
-fclose(pf);
-remove(tdir);
-rename(tauxdir, tdir);
+        
+  fclose(auxf);
+  fclose(pf);
+  remove(tdir);
+  rename(tauxdir, tdir);
 }
 
 //Agrega un usuario junto a su version e ip, si ya esta agregado solo actualiza su version e ip
