@@ -92,11 +92,18 @@ int main(int argc, char *argv[]){
   crearDir();
 
 //Inicialización de variables para la localización del directorio de la aplicación
+  char AppDir[100];
+  char part[30] = "/home/";
+  char part2[30] = "/.NOMBRE/";
+  char * nombreusu = nombreusuario();
+  strcpy(AppDir , part);
+  strcat(AppDir,nombreusu);
+  strcat(AppDir,part2);
   d = getenv("HOME");
-  AppDir = d;
-  strcat(AppDir,"/");
-  confDir = AppDir;
-  strcat(confDir,".conf");
+  confDir = d;
+  strcat(confDir,"/.conf");
+
+  printf("%s\n", confDir);
 
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
@@ -127,7 +134,7 @@ LOOP:  while(1){
 //guarda la direccion de ip en el archivo .conf
   getIpAddr();
 
-  //Creación del socket
+//Creación del socket
   sock = socket(AF_INET, SOCK_DGRAM, 0);
   if(sock < 0){
     perror("error creando el socket");
@@ -136,7 +143,6 @@ LOOP:  while(1){
     printf("creacion de socket --- OK\n");
 
 //Habilita SO_REUSEADDR para permitir a multiples instancias de esta aplicacion recibir copias de datagramas multicast
-
   int reuse = 1;
   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
     perror("Setting SO_REUSEADDR error");
@@ -151,7 +157,7 @@ LOOP:  while(1){
   localSock.sin_port = htons(4321);
   localSock.sin_addr.s_addr = INADDR_ANY;
 
-//BIND
+//bind
   if(bind(sock, (struct sockaddr*)&localSock, sizeof(localSock))) {
     perror("Error realizanzo el Binding");
     close(sock);
@@ -193,6 +199,7 @@ LOOP:  while(1){
       print_ip(data->ip);
       syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+//Menú
       switch (data->cod) {
 
 //Guardado del nuevo usuario y envio de mensaje en respuesta con mi nombre de usuario, el ip local y la version local
@@ -219,7 +226,6 @@ LOOP:  while(1){
 
 //Guardado de datos del mensaje respuesta en la tabla de usuarios
         case 2:
-          //VERIFICAR Y GUARDAR USUARIO RESIBIDIO!!!
 
           buscarusuario(data->id_usuario, data->version, data->ip);
 
@@ -262,8 +268,7 @@ LOOP:  while(1){
 
 //Respuesta positiva: Actualización de números de version en la tabla
         case 4:
-          //ACTUALIZAR LA TABLA!!
-			actualizartabla(data->id_usuario, data->version, data->ip);
+			    actualizartabla(data->id_usuario, data->version, data->ip);
 
           printf("Se ha encontrado una version más actual del repositorio");
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -294,7 +299,6 @@ LOOP:  while(1){
         case 6:
 
 //Busqueda de nombre de los archivos
-//CAMBIAR "direccion" POR LA UBICACION DEL REPOSITORIO DE LA APLICACION /HOME/USUARIO/.NOMBRE
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
@@ -350,13 +354,18 @@ LOOP:  while(1){
 
 //Obtención de nombre de archivo y guardado del contenido
         case 7: //recibir y copiar los archivos a mi directorio
-          //COPIAR ARCHIVOS A MI REPOSITORIO
+          //COPIAR ARCHIVOS A MI REPOSITORIO Y ACTUALIZAR .CONF CON LA VERSION QUE TIENE TRAE AL QUE LE SOLICITO
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
           recvArchivo(ent->d_name);
+
+//Actualiza la version local en el archivo de configuración
+          char str[64];
+          snprintf(str,64,"%ld",data->version);
+          setConf(3,str);
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "salio case 7" );

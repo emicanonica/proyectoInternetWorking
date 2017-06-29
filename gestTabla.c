@@ -13,6 +13,7 @@
 
 #include "gestTabla.h"
 
+//Obtiene el nombre del usuario que esta en uso en la pc
 char * nombreusuario(){
 
   char *login;
@@ -32,60 +33,67 @@ char * nombreusuario(){
 
   /*Se muestran los datos de la sesión en pantalla*/
   //printf("%s", pentry ->pw_name);
-  return(pentry ->pw_name);    
+  return(pentry ->pw_name);
 }
 
-void agregarUsuario(char * id_usuario, uint64_t version, uint32_t ip){
-
-  FILE *pf;
-  pf = fopen("tabla.txt", "a+");
-
-  fprintf(pf, "%s %ld\n", id_usuario, version);
-
-  fclose(pf);
-
-}
-
+//Retorna el IP del usuario con mayor version en la tabla de usuarios
 uint32_t versionmayor(uint64_t versionb){
 
-char * usuario;
-uint64_t version;
-uint32_t ip;
-char * usuariomax;
-uint64_t versionmax;
-uint32_t ipmax;
-FILE *pf;
-pf = fopen("tabla.txt", "r+");
-versionmax = 0;
-while(!feof(pf))
-{
- fscanf(pf, "%s %ld %d", usuario, &version, &ip);
- if(!feof(pf)){
-        if(version >= versionmax){
-        	versionmax = version;
-        	usuariomax = usuario;
-        	ipmax = ip;
-             }
-}
-}
-fclose(pf);
-if (versionmax == versionb){
-	printf("La version del repositorio es la mas actual");
-	}
-return (ipmax);
+  char * usuario;
+  uint64_t version;
+  uint32_t ip;
+  char * usuariomax;
+  uint64_t versionmax;
+  uint32_t ipmax;
+  char tdir[100];
+  char part[30] = "/home/";
+  char part2[30] = "/.NOMBRE/tabla.txt";
+  char * nombreusu = nombreusuario();
+  strcpy(tdir , part);
+  strcat(tdir,nombreusu);
+  strcat(tdir,part2);
+  FILE *pf;
+  pf = fopen(tdir, "r+");
+  versionmax = 0;
+
+  while(!feof(pf)) {
+   fscanf(pf, "%s %ld %d", usuario, &version, &ip);
+     if(!feof(pf)){
+            if(version > versionmax){
+            	versionmax = version;
+            	usuariomax = usuario;
+            	ipmax = ip;
+            }
+     }
+  }
+  fclose(pf);
+  if (versionmax <= versionb){
+    ipmax = 0;
+  	}
+  return (ipmax);
 }
 
+//Actualiza los datos en la tabla de usuarios
 int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
 
-
-char * usuario;
-uint64_t version;
-uint32_t ip;
-FILE *pf;
-pf = fopen("tabla.txt", "r+");
-char * filename = "tabla.txt";
-FILE *auxf;
-auxf = fopen("tablaaux.txt", "w+");
+  char tdir[100];
+  char tauxdir[100];
+  char part[30] = "/home/";
+  char part2[30] = "/.NOMBRE/tabla.txt";
+  char part3[30] = "/.NOMBRE/tablaaux.txt";
+  char * nombreusu = nombreusuario();
+  strcpy(tdir , part);
+  strcat(tdir,nombreusu);
+  strcpy(tauxdir,tdir);
+  strcat(tdir,part2);
+  strcat(tauxdir,part3);
+  char * usuario;
+  uint64_t version;
+  uint32_t ip;
+  FILE *pf;
+  pf = fopen(tdir, "r+");
+  FILE *auxf;
+  auxf = fopen(tauxdir, "w+");
 
 		while(!feof(pf)){
   			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
@@ -101,67 +109,77 @@ auxf = fopen("tablaaux.txt", "w+");
 				}//end while
 fclose(auxf);
 fclose(pf);
-remove(filename);
-rename("tablaaux.txt", "tabla.txt");
+remove(tdir);
+rename(tauxdir, tdir);
 }
 
+//Agrega un usuario junto a su version e ip, si ya esta agregado solo actualiza su version e ip
 int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
-/*agrega un usuario junto a su version e ip, si ya esta agregado solo actualiza su version e ip*/
 
-int a;
-char * usuario;
-uint64_t version;
-uint32_t ip;
-FILE *pf;
-pf = fopen("tabla.txt", "r+");
-a = 0;
-char * filename = "tabla.txt";
+  char tdir[100];
+  char tauxdir[100];
+  char part[30] = "/home/";
+  char part2[30] = "/.NOMBRE/tabla.txt";
+  char part3[30] = "/.NOMBRE/tablaaux.txt";
+  char * nombreusu = nombreusuario();
+  strcpy(tdir , part);
+  strcat(tdir,nombreusu);
+  strcpy(tauxdir,tdir);
+  strcat(tdir,part2);
+  strcat(tauxdir,part3);
+  int a;
+  char * usuario;
+  uint64_t version;
+  uint32_t ip;
+  FILE *pf;
+  pf = fopen(tdir, "r+");
+  a = 0;
 
-while(!feof(pf)){
-fscanf(pf, "%s %ld %d", usuario, &version, &ip);
- if(!feof(pf)){
- 	if(strcmp(usuario, id_usuario) == 0){
-	 a = 1;
-		}//end if
- 		}//end if
- 		}//end while
-fclose(pf);
+  while(!feof(pf)){
+  fscanf(pf, "%s %ld %d", usuario, &version, &ip);
+   if(!feof(pf)){
+   	if(strcmp(usuario, id_usuario) == 0){
+  	 a = 1;
+  		}//end if
+   		}//end if
+   		}//end while
+  fclose(pf);
 
-	if(a == 1) {
-	 FILE *auxf;
-	 pf = fopen("tabla.txt", "r+");
-	 auxf = fopen("tablaaux.txt", "w+");
+  	if(a == 1) {
+  	 FILE *auxf;
+  	 pf = fopen(tdir, "r+");
+  	 auxf = fopen(tauxdir, "w+");
 
-		//Usuario existente, se actualiza version e ip
+  	//Usuario existente, se actualiza version e ip
+  		while(!feof(pf)){
+    			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
+    				 if(!feof(pf)){
 
-		while(!feof(pf)){
-  			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
-  				 if(!feof(pf)){
+        					if(strcmp(usuario, id_usuario)== 0){
+         					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
+                  							}
+         					else {
+            				 fprintf(auxf, "%s %ld %d\n", usuario, version, ip);
+              					}//end if
+    					}//end if
+  				}//end while
+  		fclose(auxf);
+  		fclose(pf);
+  		remove(tdir);
+  		rename(tauxdir, tdir);
+  			}//end if
 
-      					if(strcmp(usuario, id_usuario)== 0){
-       					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
-                							}
-       					else {
-          				 fprintf(auxf, "%s %ld %d\n", usuario, version, ip);
-            					}//end if
-  					}//end if
-				}//end while
-		fclose(auxf);
-		fclose(pf);
-		remove(filename);
-		rename("tablaaux.txt", "tabla.txt");
-			}//end if
+  	//Agrego el usuario al final de la tabla si no existe
 
-	//Agrego el usuario al final de la tabla si no existe
-
-	else{
-	pf = fopen("tabla.txt", "a+");
-	fprintf(pf, "%s %ld %d\n", id_usuario, versionb, ipb);
-	fclose(pf);
-  printf("La tabla de usuarios se ha actualizado\n");
-	}
+  	else{
+  	pf = fopen(tdir, "a+");
+  	fprintf(pf, "%s %ld %d\n", id_usuario, versionb, ipb);
+  	fclose(pf);
+    printf("La tabla de usuarios se ha actualizado\n");
+  	}
 }
 
+//Se le pasa un IP en formato net y lo imprime en formato 127.0.0.1
   void print_ip(int ip){
       unsigned char bytes[4];
       bytes[0] = (ip >> 24) & 0xFF;
@@ -172,7 +190,8 @@ fclose(pf);
       syslog(LOG_NOTICE, "el ip es:%d.%d.%d.%d\n", bytes[3], bytes[2], bytes[1], bytes[0]);
   }
 
-char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
+//Obtiene los valores de configuracion en el archivo .conf y los asigna
+char * getConf(int i) {
 
   char *confDir = getenv("HOME");
   FILE *pf;
@@ -205,11 +224,11 @@ char * getConf(int i) { //TOMA LOS VALORES EN .conf Y LOS PONES EN LAS VARIABLES
   return line;
 }
 
+//Asigna str al valor correspondiente en el archivo de configuracion .conf
 void setConf(int i, char * str){
 
   char *confDir = getenv("HOME");
   FILE *pf;
-  //char buffer[500];
   char *buffer = malloc (100000000);
   int len1,len2,len3,c,cont;
   cont = 0;
@@ -243,6 +262,7 @@ void setConf(int i, char * str){
   fclose(pf);
 }
 
+//Obtiene el IP actual del usuario y lo guarda en el archivo de configuración .conf
 int getIpAddr(){
   FILE *f;
   char line[100] , *p , *c;
@@ -301,6 +321,7 @@ int getIpAddr(){
     return 0;
 }
 
+//En caso de que no exista, crea el directorio y el archivo tabla.txt de la aplicacion en el home del usuario
 int crearDir(){
   char * dir = getenv("HOME");
   strcat(dir,"/.NOMBRE");
