@@ -263,6 +263,8 @@ LOOP:  while(1){
 //Respuesta positiva: Actualización de números de version en la tabla
         case 4:
           //ACTUALIZAR LA TABLA!!
+			actualizartabla(data->id_usuario, data->version, data->ip);
+
           printf("Se ha encontrado una version más actual del repositorio");
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 4" );

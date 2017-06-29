@@ -16,14 +16,14 @@
 //declaracion de variables
 char str1[50],str2[500];
 char *ptr, *confDir, *dir;
-unsigned long localVersion;
+uint64_t localVersion;
 char *idUsuario, *direccion;
 uint32_t IpDestino, localIp;
 char * nombreusu;
 
 int main(int argc, char const *argv[]) {
 
-//Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
+  //Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
   crearDir();
 
   dir = getenv("HOME");
@@ -31,23 +31,16 @@ int main(int argc, char const *argv[]) {
   strcat(confDir,"/.conf");
 
 //Verificación de la existencia de los archivos de configuracion
-  if (argc > 1) {
-    if (access(confDir,F_OK) != 0 && strcmp(argv[1], "conf") != 0 ) {
-      printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
-      exit(0);
-    }
-  } else {
-    if (access(confDir,F_OK) != 0) {
-      printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
-      exit(0);
-    }
+  if (access(confDir,F_OK) != 0 && strcmp(argv[1], "conf") != 0 ) {
+    printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
+    exit(0);
   }
 
 //verifica que haya un argumento
   if (argc <= 1){
     printf("Uso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t actualiza el repositorio local\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
     exit(0);
   }
@@ -118,11 +111,12 @@ int main(int argc, char const *argv[]) {
 //mensaje unicast 'actualizar'
   } else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
 
-    if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
+    if (mensajeMulticast(3, localVersion, IpDestino, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'version'");
     }
     //BUSCAR LA VERSION MAS ACTUALIZADA EN LA TABLA, TOMAR LA IP Y USARLA PARA ENVIAR UN MENSAJE SOLICITUD (actualizar IpDestino con el mas actual de la tabla)
     //VERIFICAR EN LA TABLA QUE LA VERSION LOCAL SEA MENOR QUE LA MAS ACTUALIZADA, EN ESTE CASO MANDAR UN MENSAJE QUE DIGA QUE SE TIENE LA VERSION MAS ACTUAL
+		IpDestino = versionmayor(localVersion); //No estoy seguro de que va aca 
     if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
       perror("Error de envio de mensaje multicast 'solicitud'");
     }
@@ -175,34 +169,37 @@ int main(int argc, char const *argv[]) {
     info = localtime( &rawtime );
     strftime(vt,16,"%Y%m%d%H%M%S", info);
     setConf(3,vt);
+    //COPIAR ARCHIVOS DESDE LA UBICACION ESTABLECIDA A LA CARPETA DE LA APLICACION, LUEGO MANDAR UN MENSAJE HOLA PARA QUE ACTUALIZEN LAS TABLAS LOS OTROS USUARIOS
 		nombreusu = nombreusuario();
-		char * part2 = strcat(direccion,"*"); //direccion de la carpeta donde se guardan los archivos
+		char * part2 = direccion; //direccion de la carpeta donde se guardan los archivos
 		char part[30] = "/home/"; //direccion de la carpeta donde se versiona y comparte los archivos, carpeta oculta la que puse es de ejemplo
-		char part3[30] = "/.NOMBRE/";
-		char comando[100];
-		char cmd1[30] = "find ";
-		char cmd2[30] = "cp -rf ";
+		char part3[30] = "/.nombre";		
+		char comando[70];
+		char cmd1[30] = "rm -r ";
+		char cmd2[30] = "cp -r ";
 		strcpy(comando , cmd1);
 		strcat(comando , part);
-		strcat(comando , nombreusu);
+		strcat(comando , nombreusu); 
 		strcat(comando , part3);
-    strcat(comando," ! -name '.conf' ! -name 'tabla.txt' -type f -exec rm -f {} +");
-		system( comando ); // el comando quedaria "find /home/emi/.NOMBRE/ ! -name '.conf' -type f -exec rm -f {} +"
+		//printf("%s \n" , comando );
+		system( comando ); // el comando quedaria "rm -r /home/nombreusuario/.nombre"
+		//printf("carpeta eliminada\n");
 		strcpy(comando , cmd2);
 		strcat(comando , part2);
 		strcat(comando , " ");
 		strcat(comando , part);
-		strcat(comando , nombreusu);
+		strcat(comando , nombreusu); 
 		strcat(comando , part3);
-		system( comando ); // el comando quedaria "cp -rf "carpeta_visible" "carpeta_oculta"
-		printf("Repositorio actualizado a la versión %s\n", vt);
-
+		//printf("%s \n" , comando );	
+		system( comando ); // el comando quedaria "cp -r carpeta visible carpeta oculta
+		//printf("carpeta copiada\n");
+    
 //ayuda
   }else if (strcmp(argv[1], "help") == 0) { //setea el tiempo local como numero de la version del repositorio
 
     printf("\nUso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t actualiza el repositorio local\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
 
 //En caso de que se ingrese un argumento incorrecto
@@ -211,7 +208,7 @@ int main(int argc, char const *argv[]) {
     printf("\033[1m\033[37m%s\033[0m no es un argumento correcto\n", argv[1]);
     printf("\nUso: NOMBRE [OPTION] \n");
     printf("\nOpciones de configuracion:\n\n conf \t\t cargar nombre de usuario y ubicacion del repositorio de trabajo\n setId \t\t Ingresa nuevo nombre de usuario\n setDir \t Ingresa la nueva ubicación del repositorio de trabajo\n ");
-    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t trae los archivos de la version más actual en la red\n setVersion \t actualiza el directorio local y le asigna un número de versión\n");
+    printf("\nOpciones de uso:\n\n hola \t\t Unirse al grupo de proyecto\n version \t consultar version más reciente\n actualizar \t actualiza el repositorio local\n");
     printf("\n\n Si es la primera vez que utiliza este programa corra en consola el comando './NOMBRE conf' para realizar la configuración inicial\n");
   }
 
