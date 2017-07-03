@@ -47,7 +47,7 @@ uint32_t versionmayor(uint64_t versionb){
   uint32_t ipmax;
   char tdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/tabla.txt";
+  char part2[30] = "/.NOMBRE/.tabla";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -79,8 +79,8 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
   char tdir[100];
   char tauxdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/tabla.txt";
-  char part3[30] = "/.NOMBRE/tablaaux.txt";
+  char part2[30] = "/.NOMBRE/.tabla";
+  char part3[30] = "/.NOMBRE/.tablaaux";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -106,7 +106,7 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
             		}//end else
   					}//end if
 				}//end while
-        
+
   fclose(auxf);
   fclose(pf);
   remove(tdir);
@@ -119,8 +119,8 @@ int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
   char tdir[100];
   char tauxdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/tabla.txt";
-  char part3[30] = "/.NOMBRE/tablaaux.txt";
+  char part2[30] = "/.NOMBRE/.tabla";
+  char part3[30] = "/.NOMBRE/.tablaaux";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -321,7 +321,7 @@ int getIpAddr(){
     return 0;
 }
 
-//En caso de que no exista, crea el directorio y el archivo tabla.txt de la aplicacion en el home del usuario
+//En caso de que no exista, crea el directorio y el archivo .tabla de la aplicacion en el home del usuario
 int crearDir(){
   char * dir = getenv("HOME");
   strcat(dir,"/.NOMBRE");
@@ -329,7 +329,7 @@ int crearDir(){
 
   if (access(dir,F_OK) != 0 ) {
     mkdir(dir, 0700);
-    strcat(dir,"/tabla.txt");
+    strcat(dir,"/.tabla");
     fp = fopen(dir,"w+");
     fclose(fp);
   }

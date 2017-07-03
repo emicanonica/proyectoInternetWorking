@@ -126,7 +126,7 @@ int main(int argc, char const *argv[]) {
 //Verificaca que la tabla de usuarios tenga datos
       char tdir[100];
       char part[30] = "/home/";
-      char part2[30] = "/.NOMBRE/tabla.txt";
+      char part2[30] = "/.NOMBRE/.tabla";
       char * nombreusu = nombreusuario();
       strcpy(tdir , part);
       strcat(tdir,nombreusu);
@@ -141,6 +141,7 @@ int main(int argc, char const *argv[]) {
 
 //Obtiene el ip del usuario con la mayor version en la red, en caso de que ese usuario sea el usuario local retorna 0
   		IpDestino = versionmayor(localVersion); //No estoy seguro de que va aca
+      //IpDestino = inet_addr("192.168.0.19");
 
       if (IpDestino != 0) {
         if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
@@ -197,7 +198,7 @@ int main(int argc, char const *argv[]) {
     struct tm *info;
     time( &rawtime );
     info = localtime( &rawtime );
-    strftime(vt,16,"%Y%m%d%H%M", info); //%S para segundos, lo saque porque superaba en cantidad de caracteres al formato uint64_t
+    strftime(vt,16,"%Y%m%d%H%M%S", info); //%S para segundos, lo saque porque superaba en cantidad de caracteres al formato uint64_t
     setConf(3,vt);
 
 //copia los archivos desde la ubicacion del repositorio establecida por el usuario a el directorio de la aplicación
@@ -212,7 +213,7 @@ int main(int argc, char const *argv[]) {
   	strcat(comando , part);
   	strcat(comando , nombreusu);
   	strcat(comando , part3);
-  	strcat(comando," ! -name '.conf' ! -name 'tabla.txt' -type f -exec rm -f {} +");
+  	strcat(comando," ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +");
   	system( comando ); // el comando quedaria "find /home/emi/.NOMBRE/ ! -name '.conf' -type f -exec rm -f {} +"
   	strcpy(comando , cmd2);
   	strcat(comando , part2);

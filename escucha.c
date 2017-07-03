@@ -300,7 +300,7 @@ LOOP:  while(1){
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
-                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0 || strcmp(ent->d_name,"tabla.txt") == 0){
+                if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0 || strcmp(ent->d_name,".tabla") == 0){
                   //no hace nada
                 }else{
                   printf ("%s\n", ent->d_name);
