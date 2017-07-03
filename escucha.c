@@ -137,8 +137,8 @@ LOOP:  while(1){
   if(sock < 0){
     perror("error creando el socket");
     exit(1);
-  } else
-    printf("creacion de socket --- OK\n");
+  } //else
+    //printf("creacion de socket --- OK\n");
 
 //Habilita SO_REUSEADDR para permitir a multiples instancias de esta aplicacion recibir copias de datagramas multicast
   int reuse = 1;
@@ -146,8 +146,8 @@ LOOP:  while(1){
     perror("Setting SO_REUSEADDR error");
     close(sock);
     exit(1);
-  } else
-    printf("Setting SO_REUSEADDR...OK.\n");
+  } //else
+    //printf("Setting SO_REUSEADDR...OK.\n");
 
 //Asignación
   memset((char *) &localSock, 0, sizeof(localSock));
@@ -160,8 +160,8 @@ LOOP:  while(1){
     perror("Error realizanzo el Binding");
     close(sock);
     exit(1);
-  } else
-    printf("Binding socket --- OK\n");
+  } //else
+    //printf("Binding socket --- OK\n");
 
 //Adheción al grupo multicast
   group.imr_multiaddr.s_addr = inet_addr("226.1.1.1");
@@ -170,8 +170,8 @@ LOOP:  while(1){
     perror("Adding multicast group error");
     close(sock);
     exit(1);
-  }else
-    printf("Adding multicast group...OK.\n");
+  } //else
+    //printf("Adding multicast group...OK.\n");
 
 //Espera y lectura de los mensajes entrantes
     if(read(sock, buffer, datalen) < 0){
@@ -316,7 +316,7 @@ LOOP:  while(1){
                   a = true;
 
 //Crea una conexión TCP y envia el contenido del archivo
-                  enviarArchivo(data->ip, data->id_usuario);
+                  enviarArchivo(data->ip, ent->d_name);
 
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   syslog (LOG_NOTICE, "salio de enviarArchivo" );
@@ -358,7 +358,7 @@ LOOP:  while(1){
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
-          recvArchivo(ent->d_name);
+          recvArchivo(data->id_usuario);
 
 //Actualiza la version local en el archivo de configuración
           char str[64];
