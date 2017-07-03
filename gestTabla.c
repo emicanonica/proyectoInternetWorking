@@ -39,7 +39,7 @@ char * nombreusuario(){
 //Retorna el IP del usuario con mayor version en la tabla de usuarios
 uint32_t versionmayor(uint64_t versionb){
 
-  char * usuario;
+  char usuario[50];
   uint64_t version;
   uint32_t ip;
   char * usuariomax;
@@ -55,6 +55,7 @@ uint32_t versionmayor(uint64_t versionb){
   FILE *pf;
   pf = fopen(tdir, "r+");
   versionmax = 0;
+  memset(usuario,'\0',sizeof(usuario));
 
   while(!feof(pf)) {
    fscanf(pf, "%s %ld %d", usuario, &version, &ip);
@@ -87,18 +88,19 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
   strcpy(tauxdir,tdir);
   strcat(tdir,part2);
   strcat(tauxdir,part3);
-  char * usuario;
+  char usuario[50];
   uint64_t version;
   uint32_t ip;
   FILE *pf;
   pf = fopen(tdir, "r+");
   FILE *auxf;
   auxf = fopen(tauxdir, "w+");
+  memset(usuario,'\0',sizeof(usuario));
 
 		while(!feof(pf)){
   			fscanf(pf, "%s %ld %d", usuario, &version, &ip);
   				 if(!feof(pf)){
-      					if(strcmp(usuario, id_usuario)== 0){
+      					if(strcmp(usuario, id_usuario) == 0){
        					 fprintf(auxf, "%s %ld %d\n", id_usuario, versionb, ipb);
                 }
        					else {
@@ -128,12 +130,13 @@ int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
   strcat(tdir,part2);
   strcat(tauxdir,part3);
   int a;
-  char * usuario;
+  char usuario[50];
   uint64_t version;
   uint32_t ip;
   FILE *pf;
   pf = fopen(tdir, "r+");
   a = 0;
+  memset(usuario,'\0',sizeof(usuario));
 
   while(!feof(pf)){
   fscanf(pf, "%s %ld %d", usuario, &version, &ip);
