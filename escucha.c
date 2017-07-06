@@ -29,7 +29,7 @@ int datalen;
 //para el envio de archivos
 DIR *dir;
 struct dirent *ent;
-char *d, *AppDir, *confDir;
+char *d, *confDir;
 bool a;
 
 struct str_data {
@@ -300,10 +300,12 @@ LOOP:  while(1){
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
               while ((ent = readdir (dir)) != NULL) {
+
                 if (strcmp(ent->d_name,".") == 0 || strcmp(ent->d_name,"..") == 0 || strcmp(ent->d_name,".conf") == 0 || strcmp(ent->d_name,".tabla") == 0){
                   //no hace nada
-                }else{
-                  printf ("%s\n", ent->d_name);
+                } else {
+
+                  sleep(1); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
 
 //Envio de mensaje con el nombre del archivo a ser enviado posteriormente
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
@@ -312,7 +314,6 @@ LOOP:  while(1){
                     syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   }
 
-                  sleep(1); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
                   a = true;
 
 //Crea una conexión TCP y envia el contenido del archivo
