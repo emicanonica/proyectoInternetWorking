@@ -26,6 +26,8 @@ struct sockaddr_in sourceSock;
 int sock;
 int datalen;
 
+//pid_t pid1, pid2;
+
 //para el envio de archivos
 DIR *dir;
 struct dirent *ent;
@@ -296,6 +298,8 @@ LOOP:  while(1){
 //Solicitud de envio de archivos
         case 6:
 
+        //pid_t pid1
+
 //Busqueda de nombre de los archivos
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
@@ -305,7 +309,7 @@ LOOP:  while(1){
                   //no hace nada
                 } else {
 
-                  sleep(1); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
+                  usleep(5000); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
 
 //Envio de mensaje con el nombre del archivo a ser enviado posteriormente
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
@@ -315,8 +319,15 @@ LOOP:  while(1){
                   }
 
                   a = true;
+                  //pid1 = fork();
+            /*      if (pid1 == -1) {
+                    printf("error pid\n");
+                    exit(EXIT_FAILURE);
+                  } else {
+                    //Crea una conexión TCP y envia el contenido del archivo
+                                      enviarArchivo(data->ip, ent->d_name);
+                  }*/
 
-//Crea una conexión TCP y envia el contenido del archivo
                   enviarArchivo(data->ip, ent->d_name);
 
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -355,11 +366,23 @@ LOOP:  while(1){
         case 7: //recibir y copiar los archivos a mi directorio
           //COPIAR ARCHIVOS A MI REPOSITORIO Y ACTUALIZAR .CONF CON LA VERSION QUE TIENE TRAE AL QUE LE SOLICITO
 
+          //pid_t pid2;
+
+          //pid2 = fork();
+/*
+          if (pid2 == -1) {
+            exit(EXIT_FAILURE);
+          } else {
+            recvArchivo(data->id_usuario);
+
+          }*/
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
+
           recvArchivo(data->id_usuario);
+
 
 //Actualiza la version local en el archivo de configuración
           char str[64];
