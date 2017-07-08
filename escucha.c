@@ -98,12 +98,16 @@ int main(int argc, char *argv[]){
   char part[30] = "/home/";
   char part2[30] = "/.NOMBRE/";
   char * nombreusu = nombreusuario();
+  char comando[100];
+  char cmd1[30] = "find ";
+  char cmd2[30] = "cp -rf ";
   strcpy(AppDir , part);
   strcat(AppDir,nombreusu);
   strcat(AppDir,part2);
   d = getenv("HOME");
   confDir = d;
   strcat(confDir,"/.conf");
+
 
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
@@ -114,8 +118,7 @@ int main(int argc, char *argv[]){
 LOOP:  while(1){
 
 //Inicializacion de variables
-  char *direccion = getConf(2);//"/home/emi/git/proyectoInternetWorking/mensajes/";
-  char *ptr;
+  char *ptr, *direccion;
   char ch;
   unsigned long localVersion = strtol(getConf(3),&ptr,10);
   char * idUsuario = getConf(1);
@@ -328,7 +331,9 @@ LOOP:  while(1){
                                       enviarArchivo(data->ip, ent->d_name);
                   }*/
 
-                  enviarArchivo(data->ip, ent->d_name);
+                  if (enviarArchivo(data->ip, ent->d_name) < 0) {
+                    perror("Fallo en el envio de archivos");
+                  }
 
                   syslog (LOG_NOTICE, "+++++++++++++++++++++++");
                   syslog (LOG_NOTICE, "salio de enviarArchivo" );
@@ -376,12 +381,30 @@ LOOP:  while(1){
             recvArchivo(data->id_usuario);
 
           }*/
+
+        	strcpy(comando , cmd1);
+        	strcat(comando , AppDir);
+        	strcat(comando," ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +");
+        	system( comando );
+          printf("%s\n", comando);
+
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
 
-          recvArchivo(data->id_usuario);
+          if (recvArchivo(data->id_usuario) < 0) {
+            perror("fallo al recibir archivos");
+          }
+
+          direccion = getConf(2);
+          strcpy(comando , cmd2);
+          strcat(comando , AppDir);
+          strcat(comando, "* ");
+          strcat(comando , direccion);
+          system(comando);
+          printf("%s\n", direccion);
+          printf("%s\n", comando);
 
 
 //Actualiza la version local en el archivo de configuración
