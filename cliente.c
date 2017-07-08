@@ -118,19 +118,23 @@ int main(int argc, char const *argv[]) {
 //mensaje unicast 'actualizar'
   } else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
 
-//Actualización de tabla.
-      if (mensajeMulticast(3, localVersion, localIp, idUsuario) < 0) {
-        perror("Error de envio de mensaje multicast 'version'");
-      }
-
 //Verificaca que la tabla de usuarios tenga datos
       char tdir[100];
       char part[30] = "/home/";
-      char part2[30] = "/.NOMBRE/.tabla";
+      char part2[30] = "/.NOMBRE/";
+      char part3[30] = ".tabla";
+      char comando[100];
+      char cmd1[30] = "find ";
       char * nombreusu = nombreusuario();
+
       strcpy(tdir , part);
       strcat(tdir,nombreusu);
       strcat(tdir,part2);
+      strcpy(comando, cmd1);
+      strcat(comando , tdir);
+      strcat(comando," ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +");
+      strcat(tdir,part3);
+
 
       FILE *pf =fopen(tdir,"r");
       fseek(pf, 0, SEEK_END);
@@ -140,8 +144,7 @@ int main(int argc, char const *argv[]) {
       };
 
 //Obtiene el ip del usuario con la mayor version en la red, en caso de que ese usuario sea el usuario local retorna 0
-  		IpDestino = versionmayor(localVersion); //No estoy seguro de que va aca
-      //IpDestino = inet_addr("192.168.0.19");
+  		IpDestino = versionmayor(localVersion);
 
       if (IpDestino != 0) {
         if (mensaje(6, localVersion, IpDestino, localIp, idUsuario) < 0) {
@@ -150,6 +153,9 @@ int main(int argc, char const *argv[]) {
       } else {
           printf("La version del repositorio local es la mas actual\n");
       }
+
+//Borra el contenido de la carpeta de la aplicación
+      system( comando );
 
 //Cambio de nombre de usuario en el archivo de configuración
   }else if (strcmp(argv[1], "setId") == 0) { //cambiar nombre de usuarion
@@ -198,7 +204,7 @@ int main(int argc, char const *argv[]) {
     struct tm *info;
     time( &rawtime );
     info = localtime( &rawtime );
-    strftime(vt,16,"%Y%m%d%H%M%S", info); //%S para segundos, lo saque porque superaba en cantidad de caracteres al formato uint64_t
+    strftime(vt,16,"%Y%m%d%H%M%S", info);
     setConf(3,vt);
 
 //copia los archivos desde la ubicacion del repositorio establecida por el usuario a el directorio de la aplicación
@@ -214,7 +220,7 @@ int main(int argc, char const *argv[]) {
   	strcat(comando , nombreusu);
   	strcat(comando , part3);
   	strcat(comando," ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +");
-  	system( comando ); // el comando quedaria "find /home/emi/.NOMBRE/ ! -name '.conf' -type f -exec rm -f {} +"
+  	system( comando ); // el comando quedaria "find /home/emi/.NOMBRE/ ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +"
   	strcpy(comando , cmd2);
   	strcat(comando , part2);
   	strcat(comando , " ");

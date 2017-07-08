@@ -99,7 +99,6 @@ int main(int argc, char *argv[]){
   char part2[30] = "/.NOMBRE/";
   char * nombreusu = nombreusuario();
   char comando[100];
-  char cmd1[30] = "find ";
   char cmd2[30] = "cp -rf ";
   strcpy(AppDir , part);
   strcat(AppDir,nombreusu);
@@ -382,12 +381,6 @@ LOOP:  while(1){
 
           }*/
 
-        	strcpy(comando , cmd1);
-        	strcat(comando , AppDir);
-        	strcat(comando," ! -name '.conf' ! -name '.tabla' -type f -exec rm -f {} +");
-        	system( comando );
-          printf("%s\n", comando);
-
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -400,11 +393,10 @@ LOOP:  while(1){
           direccion = getConf(2);
           strcpy(comando , cmd2);
           strcat(comando , AppDir);
-          strcat(comando, "* ");
+          strcat(comando, data->id_usuario);
+          strcat(comando, " ");
           strcat(comando , direccion);
           system(comando);
-          printf("%s\n", direccion);
-          printf("%s\n", comando);
 
 
 //Actualiza la version local en el archivo de configuración
