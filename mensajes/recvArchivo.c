@@ -13,12 +13,7 @@
 
 int recvArchivo(char * nombreArchivo)
 {
-    //nombreArchivo = malloc(20);
-    /*printf("%s\n", nombreArchivo);
-    char * direccion = malloc(300);
-    direccion = strcat(getConf(2), nombreArchivo);*/
-
-    char AppDir[100];
+    char AppDir[200];
     char part[30] = "/home/";
     char part2[30] = "/.NOMBRE/";
     char * nombreusu = nombreusuario();
@@ -53,11 +48,7 @@ int recvArchivo(char * nombreArchivo)
 
     listen(sd,10);
 
-
     conn = accept(sd, (struct sockaddr*)NULL ,NULL);
-
-
-    printf("%s\n", AppDir);
 
     FILE *f;
     f = fopen(AppDir,"wb+");
@@ -67,6 +58,7 @@ int recvArchivo(char * nombreArchivo)
     {
         printf("%s\n", buffer);
         write(filedes, buffer, strlen(buffer));
+        memset(buffer, '\0', sizeof(buffer));
     }
 
     fclose(f);
