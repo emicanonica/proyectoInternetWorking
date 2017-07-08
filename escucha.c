@@ -35,10 +35,10 @@ char *d, *confDir;
 bool a;
 
 struct str_data {
-  char  id_usuario[16];
   uint8_t cod;
   uint64_t version;
   uint32_t ip;
+  char id_usuario[16];
 };
 
 char buffer[tam];
@@ -273,7 +273,7 @@ LOOP:  while(1){
         case 4:
 			    actualizartabla(data->id_usuario, data->version, data->ip);
 
-          printf("Se ha encontrado una version más actual del repositorio");
+          printf("Se ha encontrado una version más actual del repositorio\n");
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 4" );
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");

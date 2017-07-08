@@ -15,10 +15,10 @@ int sock;
 #define tam sizeof(struct str_data)
 
 struct str_data {
-  char  id_usuario[16];
   uint8_t cod;
   uint64_t version;
   uint32_t ip;
+  char id_usuario[16];
 };
 
 int mensaje(uint8_t cod, uint64_t version, uint32_t ip, uint32_t ipOrigen, char * id_usuario){
