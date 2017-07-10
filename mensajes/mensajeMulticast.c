@@ -9,7 +9,6 @@
 
 #include "mensajeMulticast.h"
 
-
 struct sockaddr_in groupSock;
 int sock;
 
@@ -43,8 +42,7 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
   if(sock < 0){
     perror("error creando el socket");
     exit(1);
-  } else
-      printf("creacion de socket --- OK\n");
+  }
 
 //Inicializacion y adicion al grupo multicast.
   memset((char *) &groupSock, 0, sizeof(groupSock));
@@ -53,10 +51,10 @@ int mensajeMulticast(uint8_t cod, uint64_t version, uint32_t ip, char * id_usuar
   groupSock.sin_port = htons(4321);
 
 //Envio de mensaje
-  if(sendto(sock, data, datalen, 0, (struct sockaddr*)&groupSock, sizeof(groupSock)) < 0)
-  {perror("error enviando el datagrama");}
-  else
-    printf("Envio de datagrama --- OK\n");
+  if(sendto(sock, data, datalen, 0, (struct sockaddr*)&groupSock, sizeof(groupSock)) < 0){
+    perror("error enviando el datagrama");
+  }
+
 
 
   return 0;

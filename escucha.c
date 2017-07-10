@@ -26,8 +26,6 @@ struct sockaddr_in sourceSock;
 int sock;
 int datalen;
 
-//pid_t pid1, pid2;
-
 //para el envio de archivos
 DIR *dir;
 struct dirent *ent;
@@ -90,16 +88,20 @@ static void deamon(){
 
 int main(int argc, char *argv[]){
 
+  //deamon();
+
 //Verifica si existe el directorio de la aplicacion y en caso de que no exista lo crea
   crearDir();
 
 //Inicialización de variables para la localización del directorio de la aplicación
   char AppDir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/";
+  char part2[30] = "/.rockup/";
   char * nombreusu = nombreusuario();
   char comando[100];
   char cmd2[30] = "cp -rf ";
+  char *ptr, *direccion;
+  char ch;
   strcpy(AppDir , part);
   strcat(AppDir,nombreusu);
   strcat(AppDir,part2);
@@ -110,24 +112,16 @@ int main(int argc, char *argv[]){
 
 //Verificación de la existencia de los archivos de configuracion
   if (access(confDir,F_OK) != 0) {
-    printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./NOMBRE conf\033[0m \n");
+    printf("No es posible encontrar los archivos de configuracion, por favor Corra el comando \033[1m\033[37m ./rockup conf\033[0m \n");
     exit(0);
   }
 
 LOOP:  while(1){
 
-//Inicializacion de variables
-  char *ptr, *direccion;
-  char ch;
+//Inicializacion de variables que cambian en el transcurso de la ejecución
   unsigned long localVersion = strtol(getConf(3),&ptr,10);
   char * idUsuario = getConf(1);
   uint32_t localIp = inet_addr(getConf(4));
-
-  //deamon();
-
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-  syslog (LOG_NOTICE, "arranco el log.");
-  syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
   struct str_data *data;
   data = (struct str_data *) buffer;
@@ -141,19 +135,17 @@ LOOP:  while(1){
   if(sock < 0){
     perror("error creando el socket");
     exit(1);
-  } //else
-    //printf("creacion de socket --- OK\n");
+  }
 
 //Habilita SO_REUSEADDR para permitir a multiples instancias de esta aplicacion recibir copias de datagramas multicast
   int reuse = 1;
   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
-    perror("Setting SO_REUSEADDR error");
+    perror("SO_REUSEADDR ERROR");
     close(sock);
     exit(1);
-  } //else
-    //printf("Setting SO_REUSEADDR...OK.\n");
+  }
 
-//Asignación
+//Asignación de valores de red
   memset((char *) &localSock, 0, sizeof(localSock));
   localSock.sin_family = AF_INET;
   localSock.sin_port = htons(4321);
@@ -164,18 +156,16 @@ LOOP:  while(1){
     perror("Error realizanzo el Binding");
     close(sock);
     exit(1);
-  } //else
-    //printf("Binding socket --- OK\n");
+  }
 
 //Adheción al grupo multicast
   group.imr_multiaddr.s_addr = inet_addr("226.1.1.1");
 
   if(setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&group, sizeof(group)) < 0){
-    perror("Adding multicast group error");
+    perror("Adheción al grupo multicast ERROR");
     close(sock);
     exit(1);
-  } //else
-    //printf("Adding multicast group...OK.\n");
+  }
 
 //Espera y lectura de los mensajes entrantes
     if(read(sock, buffer, datalen) < 0){
@@ -186,10 +176,6 @@ LOOP:  while(1){
       close(sock);
       exit(1);
     }else{
-
-      syslog (LOG_NOTICE, "+++++++++++++++++++++++");
-      syslog (LOG_NOTICE, "esta leyendo" );
-      syslog (LOG_NOTICE, "+++++++++++++++++++++++");
 
 //Omite los mensajes propios para no generar redundancia
       if (data->ip == localIp){
@@ -206,7 +192,6 @@ LOOP:  while(1){
 
 //Guardado del nuevo usuario y envio de mensaje en respuesta con mi nombre de usuario, el ip local y la version local
         case 1:
-          //VRIFICAR QUE NO EXISTA Y GUARDAR USUARIO RESIBIDIO (SI EXISTE PERO TIENE UNA VERSION MAS ACTUAL ACTUALIZAR VERSION)!!!
 
 //verificacion de la existencia del usuario en la tabla y/o actualización de datos
 		        buscarusuario(data->id_usuario, data->version, data->ip);
@@ -229,6 +214,7 @@ LOOP:  while(1){
 //Guardado de datos del mensaje respuesta en la tabla de usuarios
         case 2:
 
+//verificacion de la existencia del usuario en la tabla y/o actualización de datos
           buscarusuario(data->id_usuario, data->version, data->ip);
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -300,8 +286,6 @@ LOOP:  while(1){
 //Solicitud de envio de archivos
         case 6:
 
-        //pid_t pid1
-
 //Busqueda de nombre de los archivos
           a = false;
           if ((dir = opendir (AppDir)) != NULL) {
@@ -311,7 +295,7 @@ LOOP:  while(1){
                   //no hace nada
                 } else {
 
-                  usleep(5000); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
+                  usleep(10000); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
 
 //Envio de mensaje con el nombre del archivo a ser enviado posteriormente
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
@@ -321,14 +305,6 @@ LOOP:  while(1){
                   }
 
                   a = true;
-                  //pid1 = fork();
-            /*      if (pid1 == -1) {
-                    printf("error pid\n");
-                    exit(EXIT_FAILURE);
-                  } else {
-                    //Crea una conexión TCP y envia el contenido del archivo
-                                      enviarArchivo(data->ip, ent->d_name);
-                  }*/
 
                   if (enviarArchivo(data->ip, ent->d_name) < 0) {
                     perror("Fallo en el envio de archivos");
@@ -343,6 +319,7 @@ LOOP:  while(1){
               }
               closedir (dir);
 
+//En caso de que el repositorio de la aplicación se encuentre vacio envia este mensaje para alertar al usuario
           } else {
             if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -351,6 +328,7 @@ LOOP:  while(1){
             }
           }
 
+//En caso de que el repositorio este vacio pero que la aplicación encuentre los archivos .conf y .tabla
           if (a == false) {
             if (mensaje(5, localVersion, data->ip, localIp, "vacio") < 0) {
               syslog (LOG_NOTICE, "+++++++++++++++++++++++");
@@ -368,18 +346,6 @@ LOOP:  while(1){
 
 //Obtención de nombre de archivo y guardado del contenido
         case 7: //recibir y copiar los archivos a mi directorio
-          //COPIAR ARCHIVOS A MI REPOSITORIO Y ACTUALIZAR .CONF CON LA VERSION QUE TIENE TRAE AL QUE LE SOLICITO
-
-          //pid_t pid2;
-
-          //pid2 = fork();
-/*
-          if (pid2 == -1) {
-            exit(EXIT_FAILURE);
-          } else {
-            recvArchivo(data->id_usuario);
-
-          }*/
 
           syslog (LOG_NOTICE, "+++++++++++++++++++++++");
           syslog (LOG_NOTICE, "llego al case 7" );
@@ -390,6 +356,7 @@ LOOP:  while(1){
             perror("fallo al recibir archivos");
           }
 
+//Copia el archivo recibido al directorio de trabajo del usuario
           direccion = getConf(2);
           strcpy(comando , cmd2);
           strcat(comando , AppDir);

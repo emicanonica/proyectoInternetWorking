@@ -47,7 +47,7 @@ uint32_t versionmayor(uint64_t versionb){
   uint32_t ipmax;
   char tdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/.tabla";
+  char part2[30] = "/.rockup/.tabla";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -80,8 +80,8 @@ int actualizartabla(char * id_usuario, uint64_t versionb, uint32_t ipb){
   char tdir[100];
   char tauxdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/.tabla";
-  char part3[30] = "/.NOMBRE/.tablaaux";
+  char part2[30] = "/.rockup/.tabla";
+  char part3[30] = "/.rockup/.tablaaux";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -121,8 +121,8 @@ int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
   char tdir[100];
   char tauxdir[100];
   char part[30] = "/home/";
-  char part2[30] = "/.NOMBRE/.tabla";
-  char part3[30] = "/.NOMBRE/.tablaaux";
+  char part2[30] = "/.rockup/.tabla";
+  char part3[30] = "/.rockup/.tablaaux";
   char * nombreusu = nombreusuario();
   strcpy(tdir , part);
   strcat(tdir,nombreusu);
@@ -172,8 +172,7 @@ int buscarusuario(char * id_usuario, uint64_t versionb, uint32_t ipb){
   		rename(tauxdir, tdir);
   			}//end if
 
-  	//Agrego el usuario al final de la tabla si no existe
-
+//Agrego el usuario al final de la tabla si no existe
   	else{
   	pf = fopen(tdir, "a+");
   	fprintf(pf, "%s %ld %d\n", id_usuario, versionb, ipb);
@@ -280,12 +279,11 @@ int getIpAddr(){
       {
           if(strcmp(c , "00000000") == 0)
           {
-              //printf("Default interface is : %s \n" , p);
               break;
           }
       }
   }
-    //which family do we require , AF_INET or AF_INET6
+
     int fm = AF_INET;
     struct ifaddrs *ifaddr, *ifa;
     int family , s;
@@ -297,7 +295,7 @@ int getIpAddr(){
         exit(EXIT_FAILURE);
     }
 
-    //Walk through linked list, maintaining head pointer so we can free list later
+//Recorre la lista, manteniendo el puntero asi la podemos liberar más adelante
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next){
         if (ifa->ifa_addr == NULL){
             continue;
@@ -314,10 +312,8 @@ int getIpAddr(){
                     exit(EXIT_FAILURE);
                 }
 
-                //printf("address: %s", host);
                 setConf(4,host);
             }
-            //printf("\n");
         }
     }
     freeifaddrs(ifaddr);
@@ -327,7 +323,7 @@ int getIpAddr(){
 //En caso de que no exista, crea el directorio y el archivo .tabla de la aplicacion en el home del usuario
 int crearDir(){
   char * dir = getenv("HOME");
-  strcat(dir,"/.NOMBRE");
+  strcat(dir,"/.rockup");
   FILE *fp;
 
   if (access(dir,F_OK) != 0 ) {

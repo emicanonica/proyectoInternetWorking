@@ -13,6 +13,8 @@
 
 int recvArchivo(char * nombreArchivo)
 {
+
+//Inicialización de variables para la localización de los directorios
     char AppDir[200];
     char part[30] = "/home/";
     char part2[30] = "/.NOMBRE/";
@@ -22,7 +24,7 @@ int recvArchivo(char * nombreArchivo)
     strcat(AppDir,part2);
     strcat(AppDir,nombreArchivo);
 
-
+//Inicialización de variables para la transferencia de archivos
     int sd = 0;
     int conn = 0;
     struct sockaddr_in serv_addr;
@@ -31,8 +33,10 @@ int recvArchivo(char * nombreArchivo)
 
     memset(buffer,'\0',sizeof(buffer));
 
+//Creación del socket
     sd = socket(AF_INET, SOCK_STREAM, 0);
 
+//Habilita SO_REUSEADDR para permitir a multiples instancias de esta aplicacion recibir copias de datagramas multicast
     int reuse = 1;
     if(setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) < 0) {
       perror("Setting SO_REUSEADDR error");
@@ -44,26 +48,32 @@ int recvArchivo(char * nombreArchivo)
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(1235);
 
+//Bind
     bind(sd, (struct sockaddr*)&serv_addr,sizeof(serv_addr));
 
-    listen(sd,10);
+//Espera que le contesten con un connect
+    if (listen(sd,10) < 0) {
+      perror("listen error");
+    }
 
+//Acepta la solicitud de conexión recivida
     conn = accept(sd, (struct sockaddr*)NULL ,NULL);
 
+//Crea el archivo si no existe y lo abre en modo escritura
     FILE *f;
     f = fopen(AppDir,"wb+");
 
+//Recibe los datos del archivo y los guarda en el recien creado
     filedes = fileno(f);
     while (recv(conn, buffer, sizeof(buffer), 0) > 0 ) // es decir mientras del otro lado no hagan close()
     {
-        printf("%s\n", buffer);
         write(filedes, buffer, strlen(buffer));
         memset(buffer, '\0', sizeof(buffer));
     }
 
     fclose(f);
     close(sd);
-    printf("fin recv\n" );
+    printf("%s completado\n", nombreArchivo );
 
     return 0;
 }

@@ -42,8 +42,6 @@ int mensaje(uint8_t cod, uint64_t version, uint32_t ip, uint32_t ipOrigen, char 
   if(sock < 0){
     perror("error creando el socket");
     exit(1);
-  } else{
-    printf("creacion de socket --- OK.\n");
   }
 
 //Asignación de datos al socket
@@ -57,10 +55,9 @@ int mensaje(uint8_t cod, uint64_t version, uint32_t ip, uint32_t ipOrigen, char 
   }
 
 //Envio de mensaje
-  if(sendto(sock, data, datalen, 0, (struct sockaddr*)&destSock, sizeof(destSock)) < 0)
-    {perror("error enviando el datagrama");}
-  else
-    printf("Envio de datagrama --- OK\n");
+  if(sendto(sock, data, datalen, 0, (struct sockaddr*)&destSock, sizeof(destSock)) < 0) {
+    perror("error enviando el datagrama");
+  }
 
 
   return 0;
