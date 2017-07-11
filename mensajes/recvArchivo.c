@@ -17,7 +17,7 @@ int recvArchivo(char * nombreArchivo)
 //Inicialización de variables para la localización de los directorios
     char AppDir[200];
     char part[30] = "/home/";
-    char part2[30] = "/.NOMBRE/";
+    char part2[30] = "/.rockup/";
     char * nombreusu = nombreusuario();
     strcpy(AppDir , part);
     strcat(AppDir,nombreusu);

@@ -295,7 +295,7 @@ LOOP:  while(1){
                   //no hace nada
                 } else {
 
-                  usleep(10000); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
+                  usleep(50000); //esto está para asegurarse de que primero se ejecute "recvArchivo" en el escucha del otro lado
 
 //Envio de mensaje con el nombre del archivo a ser enviado posteriormente
                   if (mensaje(7, localVersion, data->ip, localIp, ent->d_name) < 0) { //con cod=7 enviar el nombre del archivo en el idUsuario
