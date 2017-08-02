@@ -1,6 +1,6 @@
 # Rockup sincronizador de archivos
 
-<b>Proyecto realizado en la materia electiva internetworking en la Universidad Tecnológica Nacional - FRLP</b>
+<b>Proyecto realizado en la materia electiva de 5to año internetworking de la carrera Ingenieria en Sistemas de Información en la Universidad Tecnológica Nacional - FRLP</b>
 
 <b>Descripcion:</b>
 En este trabajo se plantea el desarrollo de una aplicación que permitirá a múltiples usuarios dentro de una misma red utilizar un repositorio virtual compartido, basándose en la idea de un controlador de versionado descentralizado, el cual contará con su propio protocolo de sincronización entre los distintos repositorios, dando la posibilidad a los usuarios de realizar  modificaciones en un repositorio local y compartirlo con el resto. Esta herramienta será para un uso dentro de una red local y orientado al p2p.
