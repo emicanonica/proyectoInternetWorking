@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
 //mensaje unicast 'actualizar'
   } else if (strcmp(argv[1], "actualizar") == 0) { // enviar mensaje "version" y luego enviar mensaje con=6 al mas actualizado en la tabla
 
-//Verificaca que la tabla de usuarios tenga datos
+//Verifica que la tabla de usuarios tenga datos
       char tdir[100];
       char part[30] = "/home/";
       char part2[30] = "/.rockup/";
