@@ -16,6 +16,7 @@ int recvArchivo(char * nombreArchivo)
 
 //Inicialización de variables para la localización de los directorios
     char AppDir[200];
+    int n;
     char part[30] = "/home/";
     char part2[30] = "/.rockup/";
     char * nombreusu = nombreusuario();
@@ -65,14 +66,14 @@ int recvArchivo(char * nombreArchivo)
 
 //Recibe los datos del archivo y los guarda en el recien creado
     filedes = fileno(f);
-    while (recv(conn, buffer, sizeof(buffer), 0) > 0 ) // es decir mientras del otro lado no hagan close()
+    while ( (n = recv(conn, buffer, sizeof(buffer), 0)) > 0 ) // es decir mientras del otro lado no hagan close()
     {
-        write(filedes, buffer, strlen(buffer));
-        memset(buffer, '\0', sizeof(buffer));
+        write(filedes, buffer, n);
+        //memset(buffer, '\0', sizeof(buffer));
     }
 
-    fclose(f);
     close(sd);
+    fclose(f);
     printf("%s completado\n", nombreArchivo );
 
     return 0;

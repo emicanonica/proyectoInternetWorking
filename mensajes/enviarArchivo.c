@@ -17,6 +17,7 @@ int enviarArchivo(uint32_t ip , char * nombreArchivo)
 
 //Inicialización de variables para la localización de los directorios
     char AppDir[200];
+    int n;
     char part[30] = "/home/";
     char part2[30] = "/.rockup/";
     char * nombreusu = nombreusuario();
@@ -59,13 +60,14 @@ RETRY:
     f = fopen(AppDir, "rb");
     filedes = fileno(f);
 
-    while( read(filedes, buffer, sizeof(buffer)) > 0 ) // es decir mientras no sea fin de archivo (read devuelve 0 cuando lee fin de archivo)
+    while( (n = read(filedes, buffer, sizeof(buffer))) > 0 ) // es decir mientras no sea fin de archivo (read devuelve 0 cuando lee fin de archivo)
     {
-        send(sd, buffer, strlen(buffer), 0);
-        memset(buffer,0,sizeof(buffer));
+        send(sd, buffer, n, 0);
+        //memset(buffer,0,sizeof(buffer));
     }
 
     close(sd); // Esto hace que del otro lado termine el while por que el read le devuelve 0
+    fclose(f);
     printf("%s completado\n", nombreArchivo );
 
     return 0;
